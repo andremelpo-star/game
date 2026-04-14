@@ -5,13 +5,14 @@
 [application]
 
 config/name="Sage of City N"
-run/main_scene="res://scenes/main/test_loader.tscn"
+run/main_scene="res://scenes/library/library.tscn"
 config/features=PackedStringArray("4.3")
 
 [autoload]
 
 GameState="*res://scripts/autoload/game_state.gd"
 ContentLoader="*res://scripts/autoload/content_loader.gd"
+VisitorManager="*res://scripts/systems/visitor_manager.gd"
 
 [display]
 
