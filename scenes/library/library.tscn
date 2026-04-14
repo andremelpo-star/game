@@ -46,11 +46,13 @@ script = ExtResource("1_script")
 [node name="Background" type="Node2D" parent="."]
 
 [node name="Floor" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_right = 1920.0
 offset_bottom = 1080.0
 color = Color(0.29, 0.216, 0.157, 1)
 
 [node name="ShelfRect1" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_left = 80.0
 offset_top = 150.0
 offset_right = 420.0
@@ -58,6 +60,7 @@ offset_bottom = 290.0
 color = Color(0.42, 0.267, 0.137, 1)
 
 [node name="ShelfRect2" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_left = 80.0
 offset_top = 350.0
 offset_right = 420.0
@@ -65,6 +68,7 @@ offset_bottom = 490.0
 color = Color(0.42, 0.267, 0.137, 1)
 
 [node name="ShelfRect3" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_left = 80.0
 offset_top = 550.0
 offset_right = 420.0
@@ -72,6 +76,7 @@ offset_bottom = 690.0
 color = Color(0.42, 0.267, 0.137, 1)
 
 [node name="DeskRect" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_left = 1100.0
 offset_top = 350.0
 offset_right = 1500.0
@@ -79,6 +84,7 @@ offset_bottom = 600.0
 color = Color(0.545, 0.412, 0.078, 1)
 
 [node name="DoorRect" type="ColorRect" parent="Background"]
+mouse_filter = 2
 offset_left = 870.0
 offset_top = 800.0
 offset_right = 1050.0
@@ -86,6 +92,7 @@ offset_bottom = 1000.0
 color = Color(0.173, 0.094, 0.063, 1)
 
 [node name="ShelfLabel1" type="Label" parent="Background"]
+mouse_filter = 2
 offset_left = 120.0
 offset_top = 195.0
 offset_right = 380.0
@@ -97,6 +104,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ShelfLabel2" type="Label" parent="Background"]
+mouse_filter = 2
 offset_left = 120.0
 offset_top = 395.0
 offset_right = 380.0
@@ -108,6 +116,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ShelfLabel3" type="Label" parent="Background"]
+mouse_filter = 2
 offset_left = 120.0
 offset_top = 595.0
 offset_right = 380.0
@@ -119,6 +128,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DeskLabel" type="Label" parent="Background"]
+mouse_filter = 2
 offset_left = 1140.0
 offset_top = 440.0
 offset_right = 1460.0
@@ -130,6 +140,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="DoorLabel" type="Label" parent="Background"]
+mouse_filter = 2
 offset_left = 880.0
 offset_top = 870.0
 offset_right = 1040.0
@@ -151,6 +162,7 @@ metadata/shelf_type = "fiction"
 shape = SubResource("RectShape_fiction")
 
 [node name="Highlight" type="ColorRect" parent="InteractiveZones/ShelfFiction"]
+mouse_filter = 2
 visible = false
 offset_left = -170.0
 offset_top = -70.0
@@ -167,6 +179,7 @@ metadata/shelf_type = "practical"
 shape = SubResource("RectShape_practical")
 
 [node name="Highlight" type="ColorRect" parent="InteractiveZones/ShelfPractical"]
+mouse_filter = 2
 visible = false
 offset_left = -170.0
 offset_top = -70.0
@@ -183,6 +196,7 @@ metadata/shelf_type = "rare"
 shape = SubResource("RectShape_rare")
 
 [node name="Highlight" type="ColorRect" parent="InteractiveZones/ShelfRare"]
+mouse_filter = 2
 visible = false
 offset_left = -170.0
 offset_top = -70.0
@@ -198,6 +212,7 @@ input_pickable = true
 shape = SubResource("RectShape_desk")
 
 [node name="Highlight" type="ColorRect" parent="InteractiveZones/DeskZone"]
+mouse_filter = 2
 visible = false
 offset_left = -200.0
 offset_top = -125.0
@@ -213,6 +228,7 @@ input_pickable = true
 shape = SubResource("RectShape_door")
 
 [node name="Highlight" type="ColorRect" parent="InteractiveZones/DoorZone"]
+mouse_filter = 2
 visible = false
 offset_left = -90.0
 offset_top = -100.0
@@ -223,6 +239,7 @@ color = Color(1, 1, 1, 0.15)
 [node name="Characters" type="Node2D" parent="."]
 
 [node name="Sage" type="ColorRect" parent="Characters"]
+mouse_filter = 2
 offset_left = 1250.0
 offset_top = 280.0
 offset_right = 1350.0
@@ -230,6 +247,7 @@ offset_bottom = 380.0
 color = Color(0.4, 0.3, 0.6, 1)
 
 [node name="SageLabel" type="Label" parent="Characters/Sage"]
+mouse_filter = 2
 offset_right = 100.0
 offset_bottom = 100.0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -239,6 +257,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="VisitorSprite" type="ColorRect" parent="Characters"]
+mouse_filter = 2
 visible = false
 offset_left = -40.0
 offset_top = -50.0
@@ -247,6 +266,7 @@ offset_bottom = 50.0
 color = Color(0.6, 0.4, 0.3, 1)
 
 [node name="VisitorLabel" type="Label" parent="Characters/VisitorSprite"]
+mouse_filter = 2
 offset_left = 0.0
 offset_top = 0.0
 offset_right = 80.0
