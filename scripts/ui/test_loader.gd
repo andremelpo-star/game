@@ -6,6 +6,10 @@ extends Control
 @onready var btn_visitors: Button = %BtnVisitors
 @onready var btn_consequences: Button = %BtnConsequences
 @onready var btn_game_state: Button = %BtnGameState
+@onready var btn_book_reader: Button = %BtnBookReader
+
+var _book_reader_scene: PackedScene = preload("res://scenes/library/book_reader.tscn")
+var _book_reader_instance: Control = null
 
 
 func _ready() -> void:
@@ -14,6 +18,7 @@ func _ready() -> void:
 	btn_visitors.pressed.connect(_on_load_visitors)
 	btn_consequences.pressed.connect(_on_load_consequences)
 	btn_game_state.pressed.connect(_on_test_game_state)
+	btn_book_reader.pressed.connect(_on_open_book_reader)
 	_log("Test scene ready. Press any button to begin.\n")
 
 
@@ -152,3 +157,31 @@ func _on_test_game_state() -> void:
 	_log("   pending_consequences=%s" % str(GameState.pending_consequences))
 
 	_log("[color=green]GameState test complete![/color]\n")
+
+
+func _on_open_book_reader() -> void:
+	_log("[b]--- Opening Book Reader ---[/b]")
+	_log("Opening 'tale_of_iron_king' in BookReader...")
+	_log("Knowledge before: %s" % str(GameState.knowledge_keys))
+	_log("Read books before: %s" % str(GameState.read_books))
+
+	if _book_reader_instance != null:
+		_book_reader_instance.queue_free()
+		_book_reader_instance = null
+
+	_book_reader_instance = _book_reader_scene.instantiate()
+	add_child(_book_reader_instance)
+	_book_reader_instance.book_closed.connect(_on_book_reader_closed)
+	_book_reader_instance.open_book("tale_of_iron_king")
+
+
+func _on_book_reader_closed() -> void:
+	_log("[b]--- Book Reader Closed ---[/b]")
+	_log("Knowledge after: %s" % str(GameState.knowledge_keys))
+	_log("Read books after: %s" % str(GameState.read_books))
+	_log("is_book_read('tale_of_iron_king')=%s" % str(GameState.is_book_read("tale_of_iron_king")))
+	_log("")
+
+	if _book_reader_instance != null:
+		_book_reader_instance.queue_free()
+		_book_reader_instance = null
