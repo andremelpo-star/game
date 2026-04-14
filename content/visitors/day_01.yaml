@@ -1,0 +1,161 @@
+visitors:
+  - id: visitor_farmer_day1
+    name: Farmer Grig
+    sprite: farmer
+    importance: low
+    question_text: >
+      Sage, all my crops have dried up. My neighbor says
+      it is a curse from the witch on the hills. Should I
+      go to her and ask her to lift the curse?
+    helpful_knowledge:
+      - herb_guide_drought
+      - forest_spirits_nature
+    answers:
+      - id: a1
+        text: "Go to the witch, but bring gifts -- bread and honey"
+        requires_knowledge:
+          - forest_spirits_nature
+        outcome: best
+        city_effect:
+          prosperity: 3
+          morale: 1
+        consequence_event: farmer_witch_peace
+      - id: a2
+        text: "Do not go to the witch. Check your irrigation and soil quality"
+        requires_knowledge:
+          - herb_guide_drought
+        outcome: good
+        city_effect:
+          prosperity: 2
+        consequence_event: farmer_irrigation
+      - id: a3
+        text: "Pray at the temple and wait for rain"
+        requires_knowledge: []
+        outcome: neutral
+        city_effect:
+          morale: 1
+          prosperity: -1
+        consequence_event: farmer_prays
+      - id: a4
+        text: "Gather your villagers and go to the witch as a mob -- she will be scared"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          safety: -3
+          trust: -1
+        consequence_event: farmer_mob
+      - id: a5
+        text: "Sell your land and become a merchant"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          prosperity: -2
+        consequence_event: farmer_sells
+      - id: a6
+        text: "It is not a curse but punishment from the gods. You must have angered them"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          morale: -2
+          trust: -1
+        consequence_event: farmer_guilt
+      - id: a7
+        text: "Ask the baron to grant you new land"
+        requires_knowledge: []
+        outcome: neutral
+        city_effect:
+          trust: 1
+        consequence_event: farmer_baron
+      - id: a8
+        text: "Wait -- droughts do not last forever"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          trust: -2
+          prosperity: -1
+        consequence_event: farmer_waits
+    without_knowledge_hint: >
+      Without knowledge of drought causes and forest spirits,
+      it is hard to understand what is really happening to the crops.
+  - id: visitor_guard_day1
+    name: Guard Captain Roderick
+    sprite: guard
+    importance: medium
+    question_text: >
+      Sage, we caught a boy stealing bread from the market.
+      He is barely twelve. The law says thieves lose a hand,
+      but the boy was starving. His parents died last winter.
+      What should I do?
+    helpful_knowledge:
+      - iron_king_mercy
+      - just_ruler
+    answers:
+      - id: a1
+        text: "Show mercy. Find the boy a place as an apprentice so he can earn his bread honestly"
+        requires_knowledge:
+          - iron_king_mercy
+        outcome: best
+        city_effect:
+          trust: 3
+          morale: 2
+        consequence_event: guard_mercy_apprentice
+      - id: a2
+        text: "The law must be upheld, but temper it with wisdom. Let him work off his debt at the market"
+        requires_knowledge:
+          - just_ruler
+        outcome: good
+        city_effect:
+          trust: 2
+          safety: 1
+        consequence_event: guard_work_debt
+      - id: a3
+        text: "Release him with a warning. Everyone deserves a second chance"
+        requires_knowledge: []
+        outcome: neutral
+        city_effect:
+          morale: 1
+          safety: -1
+        consequence_event: guard_warning
+      - id: a4
+        text: "Apply the law as written. A thief is a thief regardless of age"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          safety: 2
+          trust: -3
+          morale: -2
+        consequence_event: guard_harsh_law
+      - id: a5
+        text: "Lock him up for a month. That will teach him"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          safety: 1
+          morale: -1
+        consequence_event: guard_prison
+      - id: a6
+        text: "It is not our concern. Let the market handle their own thieves"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          trust: -2
+        consequence_event: guard_ignore
+      - id: a7
+        text: "Ask the temple to take him in. They always need helping hands"
+        requires_knowledge: []
+        outcome: neutral
+        city_effect:
+          morale: 1
+        consequence_event: guard_temple
+      - id: a8
+        text: "Make him a public example so others will not steal"
+        requires_knowledge: []
+        outcome: bad
+        city_effect:
+          safety: 1
+          trust: -2
+          morale: -3
+        consequence_event: guard_public_shame
+    without_knowledge_hint: >
+      Without knowledge of mercy and just rule,
+      it is difficult to find the balance between law and compassion.
