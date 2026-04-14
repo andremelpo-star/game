@@ -61,6 +61,12 @@ func _ready() -> void:
 	visitor_overlay.answer_submitted.connect(_on_answer_submitted)
 	visitor_overlay.visitor_deferred.connect(_on_visitor_deferred)
 
+	# Connect day_complete from VisitorManager to transition to day summary
+	VisitorManager.day_complete.connect(_on_visitor_manager_day_complete)
+
+	# Connect ending signal from DayCycle
+	DayCycle.ending_triggered.connect(_on_ending_triggered)
+
 	# Initialize day
 	VisitorManager.start_day(GameState.current_day)
 
@@ -113,7 +119,7 @@ func _on_zone_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, z
 		"DeskZone":
 			_on_desk_clicked()
 		"DoorZone":
-			city_walk_requested.emit()
+			get_tree().change_scene_to_file("res://scenes/city/city_walk.tscn")
 
 
 # ---------------------------------------------------------------------------
@@ -187,7 +193,6 @@ func _on_answer_submitted(visitor_id: String, answer_id: String) -> void:
 
 	if GameState.answers_today >= 5:
 		hint_label.text = "Все посетители на сегодня приняты."
-		day_complete.emit()
 
 
 func _on_visitor_deferred(_visitor_id: String) -> void:
@@ -236,3 +241,17 @@ func _update_status_bubble() -> void:
 		status_bubble_label.text = "Ожидает: %d" % count
 	else:
 		status_bubble.visible = false
+
+
+# ---------------------------------------------------------------------------
+# Day cycle integration
+# ---------------------------------------------------------------------------
+
+func _on_visitor_manager_day_complete() -> void:
+	# Transition to day summary screen
+	get_tree().change_scene_to_file("res://scenes/main/day_summary.tscn")
+
+
+func _on_ending_triggered(ending_id: String) -> void:
+	# Ending scenes will be implemented in a future task
+	print("ENDING: ", ending_id)

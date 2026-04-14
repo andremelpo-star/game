@@ -1,0 +1,107 @@
+[gd_scene load_steps=3 format=3 uid="uid://day_summary_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/day_summary.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel_bg"]
+bg_color = Color(0.12, 0.08, 0.05, 0.95)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_left = 12
+corner_radius_bottom_right = 12
+content_margin_left = 40.0
+content_margin_top = 30.0
+content_margin_right = 40.0
+content_margin_bottom = 30.0
+
+[node name="DaySummary" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.08, 0.05, 0.03, 1)
+
+[node name="CenterPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel_bg")
+
+[node name="VBox" type="VBoxContainer" parent="CenterPanel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="TitleLabel" type="Label" parent="CenterPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.843, 0.0, 1)
+theme_override_font_sizes/font_size = 28
+text = "День 1 завершен"
+horizontal_alignment = 1
+
+[node name="SummaryAnswersLabel" type="Label" parent="CenterPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 20
+text = "Советов дано: 5"
+horizontal_alignment = 1
+
+[node name="Separator" type="HSeparator" parent="CenterPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatsLabel" type="Label" parent="CenterPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 0.7)
+theme_override_font_sizes/font_size = 18
+text = "Изменения за день:"
+horizontal_alignment = 1
+
+[node name="StatsContainer" type="VBoxContainer" parent="CenterPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Spacer" type="Control" parent="CenterPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ButtonsRow" type="HBoxContainer" parent="CenterPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="BtnCityWalk" type="Button" parent="CenterPanel/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(220, 50)
+theme_override_font_sizes/font_size = 18
+text = "Прогулка по городу"
+
+[node name="BtnNextDay" type="Button" parent="CenterPanel/VBox/ButtonsRow"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(220, 50)
+theme_override_font_sizes/font_size = 18
+text = "Следующий день"

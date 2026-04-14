@@ -2,6 +2,7 @@ consequences:
   - id: farmer_witch_peace
     trigger_delay: 2
     type: city_walk
+    location: market
     scene_text: >
       At the market square, Farmer Grig is selling fresh vegetables.
       His face is beaming. Beside him stands a basket of unusual
@@ -16,6 +17,7 @@ consequences:
   - id: farmer_mob
     trigger_delay: 1
     type: city_walk
+    location: gates
     scene_text: >
       Guards stand at the city gates. Word is that yesterday a group
       of farmers went to the witch with pitchforks. She grew angry
@@ -29,6 +31,7 @@ consequences:
   - id: guard_mercy_apprentice
     trigger_delay: 2
     type: city_walk
+    location: smithy
     scene_text: >
       Near the blacksmith's shop, a young boy works the bellows
       with determination. The blacksmith pats him on the shoulder.
@@ -43,6 +46,7 @@ consequences:
   - id: guard_harsh_law
     trigger_delay: 1
     type: city_walk
+    location: tavern
     scene_text: >
       The mood in the market quarter is grim. People whisper
       in corners. A group of women stands near the courthouse,
