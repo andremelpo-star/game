@@ -1,0 +1,331 @@
+[gd_scene load_steps=8 format=3 uid="uid://library_main_scene"]
+
+[ext_resource type="Script" path="res://scripts/ui/library.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://shelf_panel_scene" path="res://scenes/library/shelf_panel.tscn" id="2_shelf"]
+[ext_resource type="PackedScene" uid="uid://book_reader_scene" path="res://scenes/library/book_reader.tscn" id="3_reader"]
+[ext_resource type="PackedScene" uid="uid://visitor_scene" path="res://scenes/visitors/visitor_scene.tscn" id="4_visitor"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud_bg"]
+bg_color = Color(0.173, 0.094, 0.063, 0.8)
+corner_radius_bottom_left = 4
+corner_radius_bottom_right = 4
+content_margin_left = 16.0
+content_margin_top = 8.0
+content_margin_right = 16.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_action"]
+bg_color = Color(0.627, 0.518, 0.361, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_desk_panel"]
+bg_color = Color(0.96, 0.9, 0.78, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.545, 0.451, 0.333, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+
+[node name="Library" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.29, 0.216, 0.157, 1)
+
+[node name="HUD" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+offset_bottom = 60.0
+theme_override_constants/separation = 16
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_bg")
+
+[node name="HUDBg" type="PanelContainer" parent="HUD"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_hud_bg")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="HUD/HUDBg"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="DayLabel" type="Label" parent="HUD/HUDBg/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 20
+text = "День 1"
+
+[node name="AnswersLabel" type="Label" parent="HUD/HUDBg/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 18
+text = "Ответов: 0/5"
+
+[node name="Spacer" type="Control" parent="HUD/HUDBg/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StatBars" type="HBoxContainer" parent="HUD/HUDBg/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TrustBar" type="VBoxContainer" parent="HUD/HUDBg/HBoxContainer/StatBars"]
+layout_mode = 2
+
+[node name="TrustLabel" type="Label" parent="HUD/HUDBg/HBoxContainer/StatBars/TrustBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 12
+text = "Доверие"
+horizontal_alignment = 1
+
+[node name="TrustProgress" type="ProgressBar" parent="HUD/HUDBg/HBoxContainer/StatBars/TrustBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+show_percentage = false
+
+[node name="ProsperityBar" type="VBoxContainer" parent="HUD/HUDBg/HBoxContainer/StatBars"]
+layout_mode = 2
+
+[node name="ProsperityLabel" type="Label" parent="HUD/HUDBg/HBoxContainer/StatBars/ProsperityBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 12
+text = "Богатство"
+horizontal_alignment = 1
+
+[node name="ProsperityProgress" type="ProgressBar" parent="HUD/HUDBg/HBoxContainer/StatBars/ProsperityBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+show_percentage = false
+
+[node name="SafetyBar" type="VBoxContainer" parent="HUD/HUDBg/HBoxContainer/StatBars"]
+layout_mode = 2
+
+[node name="SafetyLabel" type="Label" parent="HUD/HUDBg/HBoxContainer/StatBars/SafetyBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 12
+text = "Безопасность"
+horizontal_alignment = 1
+
+[node name="SafetyProgress" type="ProgressBar" parent="HUD/HUDBg/HBoxContainer/StatBars/SafetyBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+show_percentage = false
+
+[node name="MoraleBar" type="VBoxContainer" parent="HUD/HUDBg/HBoxContainer/StatBars"]
+layout_mode = 2
+
+[node name="MoraleLabel" type="Label" parent="HUD/HUDBg/HBoxContainer/StatBars/MoraleBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 12
+text = "Мораль"
+horizontal_alignment = 1
+
+[node name="MoraleProgress" type="ProgressBar" parent="HUD/HUDBg/HBoxContainer/StatBars/MoraleBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+min_value = 0.0
+max_value = 100.0
+value = 50.0
+show_percentage = false
+
+[node name="MainContent" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70.0
+offset_bottom = -80.0
+theme_override_constants/separation = 16
+
+[node name="MarginLeft" type="MarginContainer" parent="MainContent"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+
+[node name="ShelvesArea" type="VBoxContainer" parent="MainContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+theme_override_constants/separation = 16
+
+[node name="ShelvesTitle" type="Label" parent="MainContent/ShelvesArea"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 24
+text = "Книжные полки"
+
+[node name="ShelfButtons" type="VBoxContainer" parent="MainContent/ShelvesArea"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BtnShelfFiction" type="Button" parent="MainContent/ShelvesArea/ShelfButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Художественная литература"
+
+[node name="BtnShelfPractical" type="Button" parent="MainContent/ShelvesArea/ShelfButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Прикладные знания"
+
+[node name="BtnShelfRare" type="Button" parent="MainContent/ShelvesArea/ShelfButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Редкие книги"
+
+[node name="VSeparator" type="VSeparator" parent="MainContent"]
+layout_mode = 2
+
+[node name="DeskArea" type="VBoxContainer" parent="MainContent"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="DeskTitle" type="Label" parent="MainContent/DeskArea"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 24
+text = "Рабочий стол мудреца"
+
+[node name="DeskContent" type="PanelContainer" parent="MainContent/DeskArea"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_desk_panel")
+
+[node name="DeskLabel" type="Label" parent="MainContent/DeskArea/DeskContent"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.231, 0.184, 0.184, 1)
+theme_override_font_sizes/font_size = 18
+text = "За столом тихо..."
+autowrap_mode = 3
+vertical_alignment = 1
+
+[node name="VisitorQueue" type="Label" parent="MainContent/DeskArea"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 16
+text = "Ожидает: 0 посетителей"
+horizontal_alignment = 1
+
+[node name="MarginRight" type="MarginContainer" parent="MainContent"]
+layout_mode = 2
+theme_override_constants/margin_right = 20
+
+[node name="ActionBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -70.0
+theme_override_constants/separation = 12
+
+[node name="MarginLeft" type="MarginContainer" parent="ActionBar"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+
+[node name="BtnVisitor" type="Button" parent="ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Принять посетителя"
+
+[node name="BtnCityWalk" type="Button" parent="ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Выйти в город"
+
+[node name="Spacer" type="Control" parent="ActionBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnEndDay" type="Button" parent="ActionBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
+theme_override_colors/font_hover_color = Color(1, 0.973, 0.906, 1)
+theme_override_font_sizes/font_size = 16
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_action")
+text = "Завершить день"
+
+[node name="MarginRight" type="MarginContainer" parent="ActionBar"]
+layout_mode = 2
+theme_override_constants/margin_right = 20
+
+[node name="ShelfOverlay" parent="." instance=ExtResource("2_shelf")]
+layout_mode = 1
+
+[node name="BookReaderOverlay" parent="." instance=ExtResource("3_reader")]
+layout_mode = 1
+
+[node name="VisitorOverlay" parent="." instance=ExtResource("4_visitor")]
+layout_mode = 1
