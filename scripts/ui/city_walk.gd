@@ -128,21 +128,21 @@ func _show_event(zone_name: String, event: Dictionary) -> void:
 
 	# Try loading a portrait image for the NPC; fall back to plain ColorRect
 	var portrait_key: String = str(event.get("portrait", ""))
+	var portrait_texture: Texture2D = null
 	if portrait_key != "":
-		var path: String = "res://assets/portraits/%s.png" % portrait_key
-		if ResourceLoader.exists(path):
-			var texture: Texture2D = load(path)
-			if texture:
-				# Replace the ColorRect with a TextureRect if not done yet
-				var tex_rect: TextureRect = npc_sprite.get_node_or_null("PortraitTexture")
-				if tex_rect == null:
-					tex_rect = TextureRect.new()
-					tex_rect.name = "PortraitTexture"
-					tex_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
-					tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-					npc_sprite.add_child(tex_rect)
-				tex_rect.texture = texture
-				tex_rect.visible = true
+		portrait_texture = _try_load_portrait_texture(portrait_key)
+
+	if portrait_texture:
+		# Replace the ColorRect with a TextureRect if not done yet
+		var tex_rect: TextureRect = npc_sprite.get_node_or_null("PortraitTexture")
+		if tex_rect == null:
+			tex_rect = TextureRect.new()
+			tex_rect.name = "PortraitTexture"
+			tex_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			npc_sprite.add_child(tex_rect)
+		tex_rect.texture = portrait_texture
+		tex_rect.visible = true
 	else:
 		var tex_rect: TextureRect = npc_sprite.get_node_or_null("PortraitTexture")
 		if tex_rect:
@@ -219,3 +219,27 @@ func _update_progress_bar_color(bar: ProgressBar, value: int) -> void:
 	style.corner_radius_bottom_left = 2
 	style.corner_radius_bottom_right = 2
 	bar.add_theme_stylebox_override("fill", style)
+
+
+## Attempts to load a portrait texture by key. First tries the Godot resource
+## system, then falls back to loading the raw image via Image + ImageTexture.
+static func _try_load_portrait_texture(portrait_key: String) -> Texture2D:
+	var base_path: String = "res://assets/portraits/%s" % portrait_key
+
+	for ext in ["png", "jpg", "jpeg", "webp"]:
+		var path: String = "%s.%s" % [base_path, ext]
+
+		# Method 1: Godot resource loader (works if editor has imported the file)
+		if ResourceLoader.exists(path):
+			var tex: Texture2D = load(path)
+			if tex:
+				return tex
+
+		# Method 2: Raw file loading via Image (works without editor import)
+		if FileAccess.file_exists(path):
+			var image := Image.new()
+			var err: Error = image.load(path)
+			if err == OK:
+				return ImageTexture.create_from_image(image)
+
+	return null

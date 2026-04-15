@@ -44,17 +44,41 @@ func _load_portrait(data: Dictionary) -> void:
 
 	# Try loading the portrait image
 	if portrait_key != "":
-		var path: String = "res://assets/portraits/%s.png" % portrait_key
-		if ResourceLoader.exists(path):
-			var texture: Texture2D = load(path)
-			if texture:
-				visitor_portrait.texture = texture
-				visitor_portrait.visible = true
-				_hide_placeholder()
-				return
+		var texture: Texture2D = _try_load_portrait_texture(portrait_key)
+		if texture:
+			visitor_portrait.texture = texture
+			visitor_portrait.visible = true
+			_hide_placeholder()
+			return
 
 	# Fallback: show placeholder with first letter
 	_show_placeholder(display_name)
+
+
+## Attempts to load a portrait texture by key. First tries the Godot resource
+## system (for editor-imported files), then falls back to loading the raw PNG
+## via Image + ImageTexture (for files dropped in without re-importing).
+static func _try_load_portrait_texture(portrait_key: String) -> Texture2D:
+	var base_path: String = "res://assets/portraits/%s" % portrait_key
+
+	# Try common extensions
+	for ext in ["png", "jpg", "jpeg", "webp"]:
+		var path: String = "%s.%s" % [base_path, ext]
+
+		# Method 1: Godot resource loader (works if editor has imported the file)
+		if ResourceLoader.exists(path):
+			var tex: Texture2D = load(path)
+			if tex:
+				return tex
+
+		# Method 2: Raw file loading via Image (works without editor import)
+		if FileAccess.file_exists(path):
+			var image := Image.new()
+			var err: Error = image.load(path)
+			if err == OK:
+				return ImageTexture.create_from_image(image)
+
+	return null
 
 
 func _show_placeholder(display_name: String) -> void:
