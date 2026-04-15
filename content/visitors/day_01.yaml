@@ -1,25 +1,27 @@
 visitors:
-  - id: visitor_farmer_day1
-    name: Farmer Grig
+  - id: visitor_fermer_day1
+    name: Фермер Григ
     sprite: farmer
     importance: low
     dialogue:
       - speaker: visitor
-        text: "Good day, sage. Forgive me for the trouble, but I have no one else to turn to."
+        text: "Здравствуйте, мудрец. Я принес вам яблоки по поводу новоселья. Позволите вас отвлечь?"
       - speaker: sage
-        text: "Welcome. Come in, sit down."
+        text: "Конечно. Что вас волнует?"
       - speaker: visitor
-        text: "I have trouble with my harvest. The neighbors say all sorts of things, and I do not know who to believe."
+        text: "Мои деревья. Они покрылись желтым мхом, повсюду мухи, здоровые, волосатые с мой палец. Никогда такого не было!"
+      - speaker: sage
+        text: "Хмммм."
+      - speaker: visitor
+        text: "Не смотрите так на яблоки! Обижаете! Это со старой партии."
     question_text: >
-      Sage, all my crops have dried up. My neighbor says
-      it is a curse from the witch on the hills. Should I
-      go to her and ask her to lift the curse?
+      Так к чему я это. Соседи говорят мол, поодаль от моих угодий к границе Моара ведьма живет, и болезнь растений от нее пришла. Говорят, если хочу урожай спасти, придется с ведьмой разбираться. Не знаю что мне и делать.
     helpful_knowledge:
       - herb_guide_drought
       - forest_spirits_nature
     answers:
       - id: a1
-        text: "Go to the witch, but bring gifts -- bread and honey"
+        text: "Ничего не бойся. Иди к ведьме с яблоками. Да поговори с ней по простому. Как со мной."
         requires_knowledge:
           - forest_spirits_nature
         outcome: best
@@ -36,7 +38,7 @@ visitors:
           prosperity: 2
           trust: 1
       - id: a2
-        text: "Do not go to the witch. Check your irrigation and soil quality"
+        text: "В Моаре ведьм отродясь не бывало. Все перемолвки. Соседи травят твои угодья."
         requires_knowledge:
           - herb_guide_drought
         outcome: good
@@ -51,7 +53,7 @@ visitors:
         return_city_effect:
           prosperity: 1
       - id: a3
-        text: "Pray at the temple and wait for rain"
+        text: "Лучшее что ты можешь сделать, это помолиться Рмиоину. Принес дары в храм, и жди дождя."
         requires_knowledge: []
         outcome: neutral
         city_effect:
@@ -59,7 +61,7 @@ visitors:
           prosperity: -1
         consequence_event: farmer_prays
       - id: a4
-        text: "Gather your villagers and go to the witch as a mob -- she will be scared"
+        text: "Ведьмы народ сложный. Бери вилы, поднимай деревенских, жгите факела. Очищать скверну придется кровью."
         requires_knowledge: []
         outcome: bad
         city_effect:
@@ -67,14 +69,14 @@ visitors:
           trust: -1
         consequence_event: farmer_mob
       - id: a5
-        text: "Sell your land and become a merchant"
+        text: "Слышал о таком проклятье. От него не избавиться. Продавай землю, да уходи в монастырь."
         requires_knowledge: []
         outcome: bad
         city_effect:
           prosperity: -2
         consequence_event: farmer_sells
       - id: a6
-        text: "It is not a curse but punishment from the gods. You must have angered them"
+        text: "Заплати ка ты наемникам. Пусть покараулят твои угодья, да посмотрят не ходит ли кто по ночам."
         requires_knowledge: []
         outcome: bad
         city_effect:
@@ -82,14 +84,14 @@ visitors:
           trust: -1
         consequence_event: farmer_guilt
       - id: a7
-        text: "Ask the baron to grant you new land"
+        text: "Расскажи лорду, да запроси новые земли. Он либо землю даст где в другом месте, либо за тебя с ведьмой разберется."
         requires_knowledge: []
         outcome: neutral
         city_effect:
           trust: 1
         consequence_event: farmer_baron
       - id: a8
-        text: "Wait -- droughts do not last forever"
+        text: "Успокойся. Сходи в таверну, да отдохни денек. Просто жди, несчастья редко бывают долгими."
         requires_knowledge: []
         outcome: bad
         city_effect:
