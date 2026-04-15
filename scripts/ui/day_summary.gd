@@ -82,4 +82,11 @@ func _on_city_walk_pressed() -> void:
 
 func _on_next_day_pressed() -> void:
 	DayCycle.start_new_day()
-	get_tree().change_scene_to_file("res://scenes/library/library.tscn")
+
+	# Check if an ending was triggered during start_new_day
+	var ending: String = DayCycle.check_endings()
+	if ending != "":
+		GameState.set_meta("current_ending", ending)
+		get_tree().change_scene_to_file("res://scenes/main/ending_scene.tscn")
+	else:
+		get_tree().change_scene_to_file("res://scenes/library/library.tscn")
