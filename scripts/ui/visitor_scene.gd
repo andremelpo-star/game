@@ -17,10 +17,6 @@ var _current_visitor: Dictionary = {}
 var _knowledge_revealed: bool = false
 var _answer_buttons: Array[Button] = []
 
-# Portrait placeholder (created dynamically if no image found)
-var _portrait_placeholder: ColorRect = null
-var _portrait_letter: Label = null
-
 # Dialogue state
 var _dialogue_lines: Array = []
 var _dialogue_index: int = 0
@@ -35,12 +31,15 @@ func _ready() -> void:
 
 
 ## Loads a portrait image from assets/portraits/{key}.png and sets it on the
-## visitor_portrait TextureRect. Falls back to a colored placeholder with the
-## first letter of the name if no image file is found.
+## visitor_portrait TextureRect. Falls back to the existing PortraitPlaceholder
+## ColorRect (defined in the .tscn) with the first letter of the name.
 ## Supports both "portrait" and legacy "sprite" YAML fields.
 func _load_portrait(data: Dictionary) -> void:
 	var portrait_key: String = str(data.get("portrait", data.get("sprite", "")))
 	var display_name: String = str(data.get("name", data.get("visitor_name", "?")))
+
+	# Get the existing placeholder nodes from the scene tree
+	var placeholder: ColorRect = visitor_portrait.get_node_or_null("PortraitPlaceholder")
 
 	# Try loading the portrait image
 	if portrait_key != "":
@@ -48,11 +47,19 @@ func _load_portrait(data: Dictionary) -> void:
 		if texture:
 			visitor_portrait.texture = texture
 			visitor_portrait.visible = true
-			_hide_placeholder()
+			# Hide the placeholder so the texture is visible
+			if placeholder:
+				placeholder.visible = false
 			return
 
-	# Fallback: show placeholder with first letter
-	_show_placeholder(display_name)
+	# Fallback: show placeholder with first letter, clear any previous texture
+	visitor_portrait.texture = null
+	visitor_portrait.visible = true
+	if placeholder:
+		placeholder.visible = true
+		var letter_label: Label = placeholder.get_node_or_null("PortraitLetter")
+		if letter_label:
+			letter_label.text = display_name.substr(0, 1).to_upper() if display_name.length() > 0 else "?"
 
 
 ## Attempts to load a portrait texture by key. First tries the Godot resource
@@ -79,37 +86,6 @@ static func _try_load_portrait_texture(portrait_key: String) -> Texture2D:
 				return ImageTexture.create_from_image(image)
 
 	return null
-
-
-func _show_placeholder(display_name: String) -> void:
-	visitor_portrait.texture = null
-	visitor_portrait.visible = true
-
-	# Create placeholder children if they don't exist yet
-	if _portrait_placeholder == null:
-		_portrait_placeholder = ColorRect.new()
-		_portrait_placeholder.color = Color("#8B7355")
-		_portrait_placeholder.set_anchors_preset(Control.PRESET_FULL_RECT)
-		visitor_portrait.add_child(_portrait_placeholder)
-
-		_portrait_letter = Label.new()
-		_portrait_letter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_portrait_letter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		_portrait_letter.set_anchors_preset(Control.PRESET_FULL_RECT)
-		_portrait_letter.add_theme_font_size_override("font_size", 32)
-		_portrait_letter.add_theme_color_override("font_color", Color("#F5E6C8"))
-		visitor_portrait.add_child(_portrait_letter)
-
-	_portrait_placeholder.visible = true
-	_portrait_letter.visible = true
-	_portrait_letter.text = display_name.substr(0, 1).to_upper() if display_name.length() > 0 else "?"
-
-
-func _hide_placeholder() -> void:
-	if _portrait_placeholder != null:
-		_portrait_placeholder.visible = false
-	if _portrait_letter != null:
-		_portrait_letter.visible = false
 
 
 ## Shows a visitor with their question and answer options.
