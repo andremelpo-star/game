@@ -253,5 +253,5 @@ func _on_visitor_manager_day_complete() -> void:
 
 
 func _on_ending_triggered(ending_id: String) -> void:
-	# Ending scenes will be implemented in a future task
-	print("ENDING: ", ending_id)
+	GameState.set_meta("current_ending", ending_id)
+	get_tree().change_scene_to_file("res://scenes/main/ending_scene.tscn")

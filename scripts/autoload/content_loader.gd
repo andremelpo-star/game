@@ -95,6 +95,29 @@ func load_visitors_for_day(day: int) -> Array[Dictionary]:
 	return []
 
 
+## Loads endings from endings.yaml. Returns Dictionary keyed by ending id.
+func load_endings() -> Dictionary:
+	var file_path: String = "res://content/events/endings.yaml"
+	if not FileAccess.file_exists(file_path):
+		print_debug("ContentLoader: Endings file not found")
+		return {}
+
+	var file := FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		return {}
+
+	var text: String = file.get_as_text()
+	file.close()
+
+	var parsed: Variant = _parse_yaml(text)
+	var result: Dictionary = {}
+	if parsed is Dictionary and parsed.has("endings"):
+		for e in parsed["endings"]:
+			if e is Dictionary and e.has("id"):
+				result[e["id"]] = e
+	return result
+
+
 ## Loads consequences from consequences.yaml. Caches after first load.
 ## Returns Dictionary keyed by consequence id.
 func load_consequences() -> Dictionary:
