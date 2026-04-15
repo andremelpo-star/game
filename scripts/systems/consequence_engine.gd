@@ -33,7 +33,30 @@ func get_city_walk_events() -> Array[Dictionary]:
 	return result
 
 
-## Applies a consequence: modifies city_stats and marks it as applied.
+## Returns consequences of type "visitor" for the current day.
+## These inject a special visitor dialogue when the day starts.
+func get_visitor_events() -> Array[Dictionary]:
+	var active: Array[Dictionary] = get_active_consequences(GameState.current_day)
+	var result: Array[Dictionary] = []
+	for event in active:
+		if event.get("type", "") == "visitor":
+			result.append(event)
+	return result
+
+
+## Returns consequences of type "notification" for the current day.
+## These show a text popup at day start.
+func get_notification_events() -> Array[Dictionary]:
+	var active: Array[Dictionary] = get_active_consequences(GameState.current_day)
+	var result: Array[Dictionary] = []
+	for event in active:
+		if event.get("type", "") == "notification":
+			result.append(event)
+	return result
+
+
+## Applies a consequence: modifies city_stats, processes presets, and marks
+## it as applied.
 func apply_consequence(event_id: String) -> void:
 	var all_consequences: Dictionary = ContentLoader.load_consequences()
 	if not all_consequences.has(event_id):
@@ -45,5 +68,8 @@ func apply_consequence(event_id: String) -> void:
 	if changes is Dictionary:
 		for stat_name in changes:
 			GameState.modify_city_stat(stat_name, int(changes[stat_name]))
+
+	# Process preset directives (set_flags, inject_visitors, etc.)
+	PresetProcessor.apply_presets(data)
 
 	GameState.mark_consequence_applied(event_id)

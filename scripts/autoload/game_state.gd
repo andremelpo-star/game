@@ -33,6 +33,19 @@ var pending_returns: Array[Dictionary] = []
 ## IDs of books already read
 var read_books: Array[String] = []
 
+## Story flags -- simple booleans set by YAML presets to gate content
+var story_flags: Array[String] = []
+
+## Visitors injected into future days by preset directives
+## Keyed by day number (int), value is Array of visitor ID strings
+var injected_visitors: Dictionary = {}
+
+## Visitor IDs that should be skipped (removed by preset directives)
+var removed_visitors: Array[String] = []
+
+## Visitor swaps: Array of { "original": String, "replacement": String, "day": int }
+var swapped_visitors: Array[Dictionary] = []
+
 const SAVE_PATH: String = "user://savegame.json"
 
 
@@ -73,6 +86,90 @@ func mark_book_read(book_id: String) -> void:
 ## Checks whether a book has been read.
 func is_book_read(book_id: String) -> bool:
 	return book_id in read_books
+
+
+# ---------------------------------------------------------------------------
+# Story flags
+# ---------------------------------------------------------------------------
+
+## Sets a story flag if not already present.
+func set_flag(flag: String) -> void:
+	if flag not in story_flags:
+		story_flags.append(flag)
+
+
+## Removes a story flag.
+func remove_flag(flag: String) -> void:
+	story_flags.erase(flag)
+
+
+## Returns true if the flag exists.
+func has_flag(flag: String) -> bool:
+	return flag in story_flags
+
+
+## Returns true if ALL provided flags exist.
+func has_all_flags(flags: Array) -> bool:
+	for f in flags:
+		if str(f) not in story_flags:
+			return false
+	return true
+
+
+## Returns true if ANY of the provided flags exist.
+func has_any_flags(flags: Array) -> bool:
+	for f in flags:
+		if str(f) in story_flags:
+			return true
+	return false
+
+
+# ---------------------------------------------------------------------------
+# Injected / removed / swapped visitors
+# ---------------------------------------------------------------------------
+
+## Injects a visitor ID to appear on a specific future day.
+func inject_visitor(visitor_id: String, day: int) -> void:
+	var day_key: String = str(day)
+	if not injected_visitors.has(day_key):
+		injected_visitors[day_key] = []
+	if visitor_id not in injected_visitors[day_key]:
+		injected_visitors[day_key].append(visitor_id)
+
+
+## Returns injected visitor IDs for a given day.
+func get_injected_visitors(day: int) -> Array:
+	var day_key: String = str(day)
+	return injected_visitors.get(day_key, [])
+
+
+## Marks a visitor ID to be removed (skipped) from any future day.
+func remove_visitor(visitor_id: String) -> void:
+	if visitor_id not in removed_visitors:
+		removed_visitors.append(visitor_id)
+
+
+## Returns true if a visitor has been removed.
+func is_visitor_removed(visitor_id: String) -> bool:
+	return visitor_id in removed_visitors
+
+
+## Registers a visitor swap for a specific day.
+func swap_visitor(original_id: String, replacement_id: String, day: int) -> void:
+	swapped_visitors.append({
+		"original": original_id,
+		"replacement": replacement_id,
+		"day": day
+	})
+
+
+## Returns the replacement visitor ID if a swap exists for this visitor on this day.
+## Returns empty string if no swap found.
+func get_swap_replacement(visitor_id: String, day: int) -> String:
+	for swap in swapped_visitors:
+		if swap.get("original", "") == visitor_id and int(swap.get("day", 0)) == day:
+			return str(swap.get("replacement", ""))
+	return ""
 
 
 ## Adds a consequence entry to pending_consequences.
@@ -116,7 +213,11 @@ func save_game() -> void:
 		"completed_visitors": completed_visitors,
 		"pending_consequences": pending_consequences,
 		"pending_returns": pending_returns,
-		"read_books": read_books
+		"read_books": read_books,
+		"story_flags": story_flags,
+		"injected_visitors": injected_visitors,
+		"removed_visitors": removed_visitors,
+		"swapped_visitors": swapped_visitors
 	}
 	var json_string: String = JSON.stringify(data, "\t")
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
@@ -173,6 +274,20 @@ func load_game() -> bool:
 	for b in data.get("read_books", []):
 		read_books.append(b)
 
+	story_flags.clear()
+	for f in data.get("story_flags", []):
+		story_flags.append(f)
+
+	injected_visitors = data.get("injected_visitors", {})
+
+	removed_visitors.clear()
+	for rv in data.get("removed_visitors", []):
+		removed_visitors.append(rv)
+
+	swapped_visitors.clear()
+	for sv in data.get("swapped_visitors", []):
+		swapped_visitors.append(sv)
+
 	return true
 
 
@@ -196,3 +311,7 @@ func new_game() -> void:
 	pending_consequences.clear()
 	pending_returns.clear()
 	read_books.clear()
+	story_flags.clear()
+	injected_visitors.clear()
+	removed_visitors.clear()
+	swapped_visitors.clear()

@@ -95,6 +95,46 @@ func load_visitors_for_day(day: int) -> Array[Dictionary]:
 	return []
 
 
+## Loads a single visitor by ID, searching day files and conditional.yaml.
+## The day parameter is used to search the specific day file first.
+## Returns empty Dictionary if not found.
+func load_visitor_by_id(visitor_id: String, day: int = 0) -> Dictionary:
+	# First, search in the specific day file
+	if day > 0:
+		var day_visitors: Array[Dictionary] = load_visitors_for_day(day)
+		for v in day_visitors:
+			if v.get("id", "") == visitor_id:
+				return v
+
+	# Search in conditional.yaml
+	var cond_path: String = "res://content/visitors/conditional.yaml"
+	if FileAccess.file_exists(cond_path):
+		var file := FileAccess.open(cond_path, FileAccess.READ)
+		if file:
+			var text: String = file.get_as_text()
+			file.close()
+			var parsed: Variant = _parse_yaml(text)
+			if parsed is Dictionary and parsed.has("conditional_visitors"):
+				for v in parsed["conditional_visitors"]:
+					if v is Dictionary and v.get("id", "") == visitor_id:
+						return v
+
+	# Search across all day files as a last resort
+	for d in range(1, 30):
+		if d == day:
+			continue
+		var day_str: String = "%02d" % d
+		var file_path: String = "res://content/visitors/day_%s.yaml" % day_str
+		if not FileAccess.file_exists(file_path):
+			continue
+		var visitors: Array[Dictionary] = load_visitors_for_day(d)
+		for v in visitors:
+			if v.get("id", "") == visitor_id:
+				return v
+
+	return {}
+
+
 ## Loads endings from endings.yaml. Returns Dictionary keyed by ending id.
 func load_endings() -> Dictionary:
 	var file_path: String = "res://content/events/endings.yaml"

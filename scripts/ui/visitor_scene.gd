@@ -17,6 +17,10 @@ var _current_visitor: Dictionary = {}
 var _knowledge_revealed: bool = false
 var _answer_buttons: Array[Button] = []
 
+# Portrait placeholder (created dynamically if no image found)
+var _portrait_placeholder: ColorRect = null
+var _portrait_letter: Label = null
+
 # Dialogue state
 var _dialogue_lines: Array = []
 var _dialogue_index: int = 0
@@ -30,6 +34,60 @@ func _ready() -> void:
 	visible = false
 
 
+## Loads a portrait image from assets/portraits/{key}.png and sets it on the
+## visitor_portrait TextureRect. Falls back to a colored placeholder with the
+## first letter of the name if no image file is found.
+## Supports both "portrait" and legacy "sprite" YAML fields.
+func _load_portrait(data: Dictionary) -> void:
+	var portrait_key: String = str(data.get("portrait", data.get("sprite", "")))
+	var display_name: String = str(data.get("name", data.get("visitor_name", "?")))
+
+	# Try loading the portrait image
+	if portrait_key != "":
+		var path: String = "res://assets/portraits/%s.png" % portrait_key
+		if ResourceLoader.exists(path):
+			var texture: Texture2D = load(path)
+			if texture:
+				visitor_portrait.texture = texture
+				visitor_portrait.visible = true
+				_hide_placeholder()
+				return
+
+	# Fallback: show placeholder with first letter
+	_show_placeholder(display_name)
+
+
+func _show_placeholder(display_name: String) -> void:
+	visitor_portrait.texture = null
+	visitor_portrait.visible = true
+
+	# Create placeholder children if they don't exist yet
+	if _portrait_placeholder == null:
+		_portrait_placeholder = ColorRect.new()
+		_portrait_placeholder.color = Color("#8B7355")
+		_portrait_placeholder.set_anchors_preset(Control.PRESET_FULL_RECT)
+		visitor_portrait.add_child(_portrait_placeholder)
+
+		_portrait_letter = Label.new()
+		_portrait_letter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_portrait_letter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_portrait_letter.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_portrait_letter.add_theme_font_size_override("font_size", 32)
+		_portrait_letter.add_theme_color_override("font_color", Color("#F5E6C8"))
+		visitor_portrait.add_child(_portrait_letter)
+
+	_portrait_placeholder.visible = true
+	_portrait_letter.visible = true
+	_portrait_letter.text = display_name.substr(0, 1).to_upper() if display_name.length() > 0 else "?"
+
+
+func _hide_placeholder() -> void:
+	if _portrait_placeholder != null:
+		_portrait_placeholder.visible = false
+	if _portrait_letter != null:
+		_portrait_letter.visible = false
+
+
 ## Shows a visitor with their question and answer options.
 func show_visitor(visitor: Dictionary) -> void:
 	_current_visitor = visitor
@@ -38,6 +96,9 @@ func show_visitor(visitor: Dictionary) -> void:
 
 	visitor_name.text = visitor.get("name", "Unknown")
 	importance_label.text = "Важность: %s" % _translate_importance(visitor.get("importance", "low"))
+
+	# Load portrait from YAML portrait/sprite field
+	_load_portrait(visitor)
 
 	question_text.text = ""
 	question_text.append_text(visitor.get("question_text", ""))
@@ -205,6 +266,9 @@ func show_return(entry: Dictionary) -> void:
 	importance_label.text = "Returning"
 	importance_label.add_theme_color_override("font_color", Color("#DAA520"))
 
+	# Load portrait for returning visitor
+	_load_portrait(entry)
+
 	question_text.text = ""
 	question_text.append_text(entry.get("return_text", ""))
 
@@ -288,6 +352,9 @@ func show_dialogue(visitor: Dictionary) -> void:
 	_dialogue_index = 0
 	_in_dialogue = true
 
+	# Load portrait for dialogue
+	_load_portrait(visitor)
+
 	if _dialogue_lines.size() == 0:
 		_in_dialogue = false
 		dialogue_finished.emit(visitor.get("id", ""))
@@ -317,8 +384,11 @@ func _show_dialogue_line(index: int) -> void:
 
 	if speaker == "sage":
 		visitor_name.text = "Sage"
+		# Try loading sage portrait, fall back to placeholder
+		_load_portrait({"portrait": "sage", "name": "Sage"})
 	else:
 		visitor_name.text = _current_visitor.get("name", "Unknown")
+		_load_portrait(_current_visitor)
 
 	importance_label.text = ""
 

@@ -1,6 +1,7 @@
 visitors:
   - id: visitor_fermer_day1
     name: Фермер Григ
+    portrait: farmer_grig
     sprite: farmer
     importance: low
     dialogue:
@@ -103,6 +104,7 @@ visitors:
       it is hard to understand what is really happening to the crops.
   - id: visitor_guard_day1
     name: Guard Captain Roderick
+    portrait: guard_roderick
     sprite: guard
     importance: medium
     question_text: >

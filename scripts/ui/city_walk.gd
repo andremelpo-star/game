@@ -125,6 +125,29 @@ func _show_event(zone_name: String, event: Dictionary) -> void:
 	# Position NPC sprite near the zone
 	var zone_pos: Vector2 = ZONE_POSITIONS.get(zone_name, Vector2(960, 540))
 	npc_sprite.position = zone_pos + Vector2(60, -30)
+
+	# Try loading a portrait image for the NPC; fall back to plain ColorRect
+	var portrait_key: String = str(event.get("portrait", ""))
+	if portrait_key != "":
+		var path: String = "res://assets/portraits/%s.png" % portrait_key
+		if ResourceLoader.exists(path):
+			var texture: Texture2D = load(path)
+			if texture:
+				# Replace the ColorRect with a TextureRect if not done yet
+				var tex_rect: TextureRect = npc_sprite.get_node_or_null("PortraitTexture")
+				if tex_rect == null:
+					tex_rect = TextureRect.new()
+					tex_rect.name = "PortraitTexture"
+					tex_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+					tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+					npc_sprite.add_child(tex_rect)
+				tex_rect.texture = texture
+				tex_rect.visible = true
+	else:
+		var tex_rect: TextureRect = npc_sprite.get_node_or_null("PortraitTexture")
+		if tex_rect:
+			tex_rect.visible = false
+
 	npc_sprite.visible = true
 
 	# Fill overlay text
