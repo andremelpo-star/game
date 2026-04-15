@@ -3,6 +3,7 @@ extends Control
 signal answer_submitted(visitor_id: String, answer_id: String)
 signal visitor_deferred(visitor_id: String)
 signal return_acknowledged(visitor_id: String)
+signal dialogue_finished(visitor_id: String)
 
 @onready var visitor_name: Label = %VisitorName
 @onready var importance_label: Label = %ImportanceLabel
@@ -15,6 +16,12 @@ signal return_acknowledged(visitor_id: String)
 var _current_visitor: Dictionary = {}
 var _knowledge_revealed: bool = false
 var _answer_buttons: Array[Button] = []
+
+# Dialogue state
+var _dialogue_lines: Array = []
+var _dialogue_index: int = 0
+var _in_dialogue: bool = false
+var _btn_next_dialogue: Button = null
 
 
 func _ready() -> void:
@@ -267,6 +274,124 @@ func _on_return_closed(entry: Dictionary) -> void:
 	# Mark as shown
 	VisitorManager.mark_return_shown(entry.get("visitor_id", ""))
 	return_acknowledged.emit(entry.get("visitor_id", ""))
+
+
+# ---------------------------------------------------------------------------
+# Dialogue mode (pre-question conversation)
+# ---------------------------------------------------------------------------
+
+## Shows a step-by-step dialogue before the visitor's main question.
+## If the visitor has no dialogue lines, emits dialogue_finished immediately.
+func show_dialogue(visitor: Dictionary) -> void:
+	_current_visitor = visitor
+	_dialogue_lines = visitor.get("dialogue", [])
+	_dialogue_index = 0
+	_in_dialogue = true
+
+	if _dialogue_lines.size() == 0:
+		_in_dialogue = false
+		dialogue_finished.emit(visitor.get("id", ""))
+		return
+
+	# Hide answer-related UI during dialogue
+	for child in answers_list.get_children():
+		child.queue_free()
+	btn_defer.visible = false
+	btn_apply_knowledge.visible = false
+
+	# Create "Next" button if it doesn't exist yet
+	if _btn_next_dialogue == null:
+		_btn_next_dialogue = _create_next_dialogue_button()
+
+	answers_list.add_child(_btn_next_dialogue)
+	_btn_next_dialogue.visible = true
+
+	_show_dialogue_line(0)
+	self.visible = true
+
+
+func _show_dialogue_line(index: int) -> void:
+	_dialogue_index = index
+	var line: Dictionary = _dialogue_lines[index]
+	var speaker: String = line.get("speaker", "visitor")
+
+	if speaker == "sage":
+		visitor_name.text = "Sage"
+	else:
+		visitor_name.text = _current_visitor.get("name", "Unknown")
+
+	importance_label.text = ""
+
+	question_text.text = ""
+	question_text.append_text(str(line.get("text", "")))
+
+	# Update button text on the last line
+	if index >= _dialogue_lines.size() - 1:
+		_btn_next_dialogue.text = "Continue"
+	else:
+		_btn_next_dialogue.text = "Next"
+
+
+func _on_next_dialogue_pressed() -> void:
+	AudioManager.play_sfx("click")
+	_dialogue_index += 1
+
+	if _dialogue_index >= _dialogue_lines.size():
+		# Dialogue finished -- clean up and notify
+		_in_dialogue = false
+		if _btn_next_dialogue != null and _btn_next_dialogue.get_parent() != null:
+			_btn_next_dialogue.get_parent().remove_child(_btn_next_dialogue)
+		self.visible = false
+		dialogue_finished.emit(_current_visitor.get("id", ""))
+	else:
+		_show_dialogue_line(_dialogue_index)
+
+
+func _create_next_dialogue_button() -> Button:
+	var btn := Button.new()
+	btn.text = "Next"
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.custom_minimum_size.y = 44
+
+	var style_normal := StyleBoxFlat.new()
+	style_normal.bg_color = Color("#E8D5B5")
+	style_normal.border_color = Color("#8B7355")
+	style_normal.border_width_left = 1
+	style_normal.border_width_right = 1
+	style_normal.border_width_top = 1
+	style_normal.border_width_bottom = 1
+	style_normal.corner_radius_top_left = 4
+	style_normal.corner_radius_top_right = 4
+	style_normal.corner_radius_bottom_left = 4
+	style_normal.corner_radius_bottom_right = 4
+	style_normal.content_margin_left = 12.0
+	style_normal.content_margin_right = 12.0
+	style_normal.content_margin_top = 8.0
+	style_normal.content_margin_bottom = 8.0
+	btn.add_theme_stylebox_override("normal", style_normal)
+
+	var style_hover := StyleBoxFlat.new()
+	style_hover.bg_color = Color("#D4C4A0")
+	style_hover.border_color = Color("#6B5335")
+	style_hover.border_width_left = 1
+	style_hover.border_width_right = 1
+	style_hover.border_width_top = 1
+	style_hover.border_width_bottom = 1
+	style_hover.corner_radius_top_left = 4
+	style_hover.corner_radius_top_right = 4
+	style_hover.corner_radius_bottom_left = 4
+	style_hover.corner_radius_bottom_right = 4
+	style_hover.content_margin_left = 12.0
+	style_hover.content_margin_right = 12.0
+	style_hover.content_margin_top = 8.0
+	style_hover.content_margin_bottom = 8.0
+	btn.add_theme_stylebox_override("hover", style_hover)
+
+	btn.add_theme_color_override("font_color", Color("#2C1810"))
+	btn.add_theme_color_override("font_hover_color", Color("#2C1810"))
+
+	btn.pressed.connect(_on_next_dialogue_pressed)
+	return btn
 
 
 func _translate_importance(importance: String) -> String:

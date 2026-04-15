@@ -3,6 +3,13 @@ visitors:
     name: Farmer Grig
     sprite: farmer
     importance: low
+    dialogue:
+      - speaker: visitor
+        text: "Good day, sage. Forgive me for the trouble, but I have no one else to turn to."
+      - speaker: sage
+        text: "Welcome. Come in, sit down."
+      - speaker: visitor
+        text: "I have trouble with my harvest. The neighbors say all sorts of things, and I do not know who to believe."
     question_text: >
       Sage, all my crops have dried up. My neighbor says
       it is a curse from the witch on the hills. Should I
