@@ -77,16 +77,18 @@ func show_summary(day: int, stats_before: Dictionary) -> void:
 
 
 func _on_city_walk_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/city/city_walk.tscn")
+	AudioManager.play_sfx("click")
+	SceneTransition.change_scene("res://scenes/city/city_walk.tscn")
 
 
 func _on_next_day_pressed() -> void:
+	AudioManager.play_sfx("click")
 	DayCycle.start_new_day()
 
 	# Check if an ending was triggered during start_new_day
 	var ending: String = DayCycle.check_endings()
 	if ending != "":
 		GameState.set_meta("current_ending", ending)
-		get_tree().change_scene_to_file("res://scenes/main/ending_scene.tscn")
+		SceneTransition.change_scene("res://scenes/main/ending_scene.tscn")
 	else:
-		get_tree().change_scene_to_file("res://scenes/library/library.tscn")
+		SceneTransition.change_scene("res://scenes/library/library.tscn")

@@ -111,7 +111,8 @@ func _on_zone_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, z
 
 func _on_zone_clicked(zone: Area2D) -> void:
 	if zone.name == "ReturnZone":
-		get_tree().change_scene_to_file("res://scenes/library/library.tscn")
+		AudioManager.play_sfx("door")
+		SceneTransition.change_scene("res://scenes/library/library.tscn")
 		return
 
 	if zone.name in _active_events:
@@ -161,7 +162,26 @@ func _update_hud() -> void:
 
 
 func _update_progress_bar(bar: ProgressBar, value: int) -> void:
-	bar.value = value
+	# Animate value change
+	var tween := create_tween()
+	tween.tween_property(bar, "value", float(value), 0.5).set_trans(Tween.TRANS_QUAD)
+
+	_update_progress_bar_color(bar, value)
+
+	# Update tooltip
+	var stat_name: String = ""
+	if bar == trust_progress:
+		stat_name = "Trust"
+	elif bar == prosperity_progress:
+		stat_name = "Prosperity"
+	elif bar == safety_progress:
+		stat_name = "Safety"
+	elif bar == morale_progress:
+		stat_name = "Morale"
+	bar.tooltip_text = "%s: %d/100" % [stat_name, value]
+
+
+func _update_progress_bar_color(bar: ProgressBar, value: int) -> void:
 	var color: Color
 	if value > 60:
 		color = Color("#4CAF50")

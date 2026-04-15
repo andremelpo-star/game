@@ -20,6 +20,14 @@ visitors:
           prosperity: 3
           morale: 1
         consequence_event: farmer_witch_peace
+        return_day: 3
+        return_text: >
+          Sage! I brought bread and honey to the witch as you said.
+          She smiled and showed me a hidden spring on my land.
+          My crops are growing better than ever! Thank you!
+        return_city_effect:
+          prosperity: 2
+          trust: 1
       - id: a2
         text: "Do not go to the witch. Check your irrigation and soil quality"
         requires_knowledge:
@@ -28,6 +36,13 @@ visitors:
         city_effect:
           prosperity: 2
         consequence_event: farmer_irrigation
+        return_day: 2
+        return_text: >
+          Sage, I checked the soil as you said.
+          You were right -- the drainage was blocked.
+          I fixed it and the crops are recovering.
+        return_city_effect:
+          prosperity: 1
       - id: a3
         text: "Pray at the temple and wait for rain"
         requires_knowledge: []
@@ -99,6 +114,14 @@ visitors:
           trust: 3
           morale: 2
         consequence_event: guard_mercy_apprentice
+        return_day: 3
+        return_text: >
+          Sage, I wanted you to know -- the boy is doing well as an apprentice
+          at the blacksmith. He works hard and has not stolen since.
+          The market folk are pleased. Your wisdom was right.
+        return_city_effect:
+          trust: 2
+          morale: 1
       - id: a2
         text: "The law must be upheld, but temper it with wisdom. Let him work off his debt at the market"
         requires_knowledge:
@@ -108,6 +131,13 @@ visitors:
           trust: 2
           safety: 1
         consequence_event: guard_work_debt
+        return_day: 2
+        return_text: >
+          Sage, the boy has been working at the market for two days now.
+          The merchants say he is honest and diligent.
+          Justice tempered with wisdom -- it works.
+        return_city_effect:
+          trust: 1
       - id: a3
         text: "Release him with a warning. Everyone deserves a second chance"
         requires_knowledge: []
