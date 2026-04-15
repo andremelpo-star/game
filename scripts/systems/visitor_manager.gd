@@ -6,16 +6,77 @@ var today_visitors: Array[Dictionary] = []
 var current_visitor_index: int = 0
 
 
-## Loads visitors for the given day, filtering out already completed ones.
+## Loads visitors for the given day, merges injected visitors, applies swaps,
+## removes flagged visitors, and filters by condition flags.
 func start_day(day: int) -> void:
 	today_visitors = ContentLoader.load_visitors_for_day(day)
 	current_visitor_index = 0
-	# Filter out already answered visitors
+
+	# Merge injected visitors for this day
+	var injected_ids: Array = GameState.get_injected_visitors(day)
+	for vid in injected_ids:
+		# Check if this visitor already exists in today's list
+		var already_present: bool = false
+		for v in today_visitors:
+			if v.get("id", "") == str(vid):
+				already_present = true
+				break
+		if not already_present:
+			# Try to find the visitor definition in day files or conditional file
+			var injected_visitor: Dictionary = ContentLoader.load_visitor_by_id(str(vid), day)
+			if not injected_visitor.is_empty():
+				today_visitors.append(injected_visitor)
+
+	# Apply visitor swaps
+	for i in range(today_visitors.size()):
+		var v_id: String = today_visitors[i].get("id", "")
+		var replacement_id: String = GameState.get_swap_replacement(v_id, day)
+		if replacement_id != "":
+			var replacement: Dictionary = ContentLoader.load_visitor_by_id(replacement_id, day)
+			if not replacement.is_empty():
+				today_visitors[i] = replacement
+
+	# Filter out removed visitors, already completed, and condition-gated visitors
 	var filtered: Array[Dictionary] = []
 	for v in today_visitors:
-		if v.get("id", "") not in GameState.completed_visitors:
-			filtered.append(v)
+		var vid: String = v.get("id", "")
+
+		# Skip removed visitors
+		if GameState.is_visitor_removed(vid):
+			continue
+
+		# Skip already answered visitors
+		if vid in GameState.completed_visitors:
+			continue
+
+		# Check condition flags if present
+		if not _check_visitor_conditions(v):
+			continue
+
+		filtered.append(v)
 	today_visitors = filtered
+
+
+## Checks whether a visitor's condition (require_flags / forbid_flags) is met.
+## Returns true if the visitor should be shown, false if it should be hidden.
+func _check_visitor_conditions(visitor: Dictionary) -> bool:
+	var condition: Variant = visitor.get("condition", null)
+	if condition == null or not condition is Dictionary:
+		return true
+
+	# Check require_flags -- all must be present
+	var require_flags: Variant = condition.get("require_flags", null)
+	if require_flags is Array and require_flags.size() > 0:
+		if not GameState.has_all_flags(require_flags):
+			return false
+
+	# Check forbid_flags -- none must be present
+	var forbid_flags: Variant = condition.get("forbid_flags", null)
+	if forbid_flags is Array and forbid_flags.size() > 0:
+		if GameState.has_any_flags(forbid_flags):
+			return false
+
+	return true
 
 
 ## Returns the next unvisited visitor Dictionary, or null if none remain.
@@ -68,6 +129,9 @@ func submit_answer(visitor_id: String, answer_id: String) -> void:
 
 	# Schedule return if applicable
 	schedule_return(visitor, answer)
+
+	# Process YAML preset directives (set_flags, inject_visitors, etc.)
+	PresetProcessor.apply_presets(answer)
 
 	GameState.answers_today += 1
 	GameState.completed_visitors.append(visitor_id)

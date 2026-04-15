@@ -3,6 +3,7 @@ consequences:
     trigger_delay: 2
     type: city_walk
     location: market
+    portrait: farmer_grig
     scene_text: >
       At the market square, Farmer Grig is selling fresh vegetables.
       His face is beaming. Beside him stands a basket of unusual

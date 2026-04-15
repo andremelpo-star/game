@@ -26,6 +26,7 @@ ContentLoader="*res://scripts/autoload/content_loader.gd"
 VisitorManager="*res://scripts/systems/visitor_manager.gd"
 DayCycle="*res://scripts/systems/day_cycle.gd"
 ConsequenceEngine="*res://scripts/systems/consequence_engine.gd"
+PresetProcessor="*res://scripts/systems/preset_processor.gd"
 SceneTransition="*res://scripts/autoload/scene_transition.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 
