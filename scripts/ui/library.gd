@@ -65,6 +65,7 @@ func _ready() -> void:
 	visitor_overlay.answer_submitted.connect(_on_answer_submitted)
 	visitor_overlay.visitor_deferred.connect(_on_visitor_deferred)
 	visitor_overlay.return_acknowledged.connect(_on_return_acknowledged)
+	visitor_overlay.dialogue_finished.connect(_on_dialogue_finished)
 
 	# Connect day_complete from VisitorManager to transition to day summary
 	VisitorManager.day_complete.connect(_on_visitor_manager_day_complete)
@@ -195,10 +196,15 @@ func _on_desk_clicked() -> void:
 		hint_label.text = "No visitors in the queue."
 		return
 
-	# Animate visitor entering, then show the dialog
+	# Animate visitor entering, then show dialogue or question
 	AudioManager.play_sfx("footsteps")
 	await _animate_visitor_enter()
-	visitor_overlay.show_visitor(visitor)
+
+	var dialogue: Array = visitor.get("dialogue", [])
+	if dialogue.size() > 0:
+		visitor_overlay.show_dialogue(visitor)
+	else:
+		visitor_overlay.show_visitor(visitor)
 
 
 func _animate_visitor_enter() -> void:
@@ -254,6 +260,17 @@ func _on_return_acknowledged(_visitor_id: String) -> void:
 	if returns.size() > 0:
 		await get_tree().create_timer(0.3).timeout
 		_show_return_dialogue(returns[0])
+
+
+func _on_dialogue_finished(visitor_id: String) -> void:
+	# After dialogue ends, show the visitor's question with answer options
+	var visitor: Variant = null
+	for v in VisitorManager.today_visitors:
+		if v.get("id", "") == visitor_id:
+			visitor = v
+			break
+	if visitor != null:
+		visitor_overlay.show_visitor(visitor)
 
 
 # ---------------------------------------------------------------------------
