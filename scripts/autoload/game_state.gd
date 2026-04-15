@@ -25,6 +25,11 @@ var completed_visitors: Array[String] = []
 ## Format: { "event_id": String, "trigger_day": int, "applied": bool }
 var pending_consequences: Array[Dictionary] = []
 
+## Planned visitor returns
+## Format: { "visitor_id": String, "visitor_name": String, "return_day": int,
+##           "return_text": String, "return_city_effect": Dictionary, "shown": bool }
+var pending_returns: Array[Dictionary] = []
+
 ## IDs of books already read
 var read_books: Array[String] = []
 
@@ -110,6 +115,7 @@ func save_game() -> void:
 		"city_stats": city_stats,
 		"completed_visitors": completed_visitors,
 		"pending_consequences": pending_consequences,
+		"pending_returns": pending_returns,
 		"read_books": read_books
 	}
 	var json_string: String = JSON.stringify(data, "\t")
@@ -159,6 +165,10 @@ func load_game() -> bool:
 	for c in data.get("pending_consequences", []):
 		pending_consequences.append(c)
 
+	pending_returns.clear()
+	for r in data.get("pending_returns", []):
+		pending_returns.append(r)
+
 	read_books.clear()
 	for b in data.get("read_books", []):
 		read_books.append(b)
@@ -184,4 +194,5 @@ func new_game() -> void:
 	}
 	completed_visitors.clear()
 	pending_consequences.clear()
+	pending_returns.clear()
 	read_books.clear()

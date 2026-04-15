@@ -32,6 +32,10 @@ signal city_walk_requested
 # --- State ---
 var _is_animating: bool = false
 
+# --- Touch / long-press support ---
+var _touch_timer: Timer
+var _touch_zone: Area2D = null
+
 # Door position (where visitors enter/exit)
 const DOOR_POS := Vector2(960, 900)
 # Desk position (where visitors stand to talk)
@@ -39,11 +43,11 @@ const DESK_POS := Vector2(1300, 500)
 
 # Zone hint texts
 const ZONE_HINTS: Dictionary = {
-	"ShelfFiction": "Художественная литература -- кликните, чтобы открыть",
-	"ShelfPractical": "Прикладные знания -- кликните, чтобы открыть",
-	"ShelfRare": "Редкие книги -- кликните, чтобы открыть",
-	"DeskZone": "Рабочий стол -- принять посетителя",
-	"DoorZone": "Дверь -- выйти в город",
+	"ShelfFiction": "Fiction shelf -- click to browse",
+	"ShelfPractical": "Practical knowledge -- click to browse",
+	"ShelfRare": "Rare books -- click to browse",
+	"DeskZone": "Desk -- receive a visitor",
+	"DoorZone": "Door -- go to the city",
 }
 
 
@@ -60,6 +64,7 @@ func _ready() -> void:
 	book_reader_overlay.book_closed.connect(_on_book_closed)
 	visitor_overlay.answer_submitted.connect(_on_answer_submitted)
 	visitor_overlay.visitor_deferred.connect(_on_visitor_deferred)
+	visitor_overlay.return_acknowledged.connect(_on_return_acknowledged)
 
 	# Connect day_complete from VisitorManager to transition to day summary
 	VisitorManager.day_complete.connect(_on_visitor_manager_day_complete)
@@ -73,10 +78,20 @@ func _ready() -> void:
 	# Initial UI state
 	visitor_sprite.visible = false
 	status_bubble.visible = false
-	hint_label.text = "Кликните на полку, стол или дверь"
+	hint_label.text = "Click on a shelf, desk, or door"
 
 	_update_hud()
 	_update_status_bubble()
+
+	# Setup long-press timer for mobile touch tooltip support
+	_setup_touch_tooltip()
+
+	# Play ambient music if available
+	AudioManager.play_music("res://assets/audio/library_ambient.ogg")
+
+	# Check returning visitors after a short delay (let the scene load first)
+	await get_tree().create_timer(0.5).timeout
+	_check_returning_visitors()
 
 
 # ---------------------------------------------------------------------------
@@ -97,17 +112,33 @@ func _on_zone_unhover(zone: Area2D) -> void:
 	if highlight:
 		highlight.visible = false
 	if not _is_animating:
-		hint_label.text = "Кликните на полку, стол или дверь"
+		hint_label.text = "Click on a shelf, desk, or door"
 
 
 func _on_zone_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, zone: Area2D) -> void:
 	if _is_animating:
 		return
-	if not event is InputEventMouseButton:
+
+	# Handle mouse click
+	if event is InputEventMouseButton:
+		var mb: InputEventMouseButton = event as InputEventMouseButton
+		if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+			return
+		_handle_zone_click(zone)
 		return
-	var mb: InputEventMouseButton = event as InputEventMouseButton
-	if not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
-		return
+
+	# Handle touch for long-press tooltips
+	if event is InputEventScreenTouch:
+		var touch: InputEventScreenTouch = event as InputEventScreenTouch
+		if touch.pressed:
+			_on_zone_touch_start(zone)
+		else:
+			_on_zone_touch_end()
+			_handle_zone_click(zone)
+
+
+func _handle_zone_click(zone: Area2D) -> void:
+	AudioManager.play_sfx("click")
 
 	match zone.name:
 		"ShelfFiction":
@@ -119,7 +150,35 @@ func _on_zone_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, z
 		"DeskZone":
 			_on_desk_clicked()
 		"DoorZone":
-			get_tree().change_scene_to_file("res://scenes/city/city_walk.tscn")
+			AudioManager.play_sfx("door")
+			SceneTransition.change_scene("res://scenes/city/city_walk.tscn")
+
+
+# ---------------------------------------------------------------------------
+# Touch / long-press support (mobile)
+# ---------------------------------------------------------------------------
+
+func _setup_touch_tooltip() -> void:
+	_touch_timer = Timer.new()
+	_touch_timer.one_shot = true
+	_touch_timer.wait_time = 0.5
+	_touch_timer.timeout.connect(_on_long_press)
+	add_child(_touch_timer)
+
+
+func _on_zone_touch_start(zone: Area2D) -> void:
+	_touch_zone = zone
+	_touch_timer.start()
+
+
+func _on_zone_touch_end() -> void:
+	_touch_timer.stop()
+	_touch_zone = null
+
+
+func _on_long_press() -> void:
+	if _touch_zone:
+		hint_label.text = ZONE_HINTS.get(_touch_zone.name, "")
 
 
 # ---------------------------------------------------------------------------
@@ -128,15 +187,16 @@ func _on_zone_input_event(_viewport: Node, event: InputEvent, _shape_idx: int, z
 
 func _on_desk_clicked() -> void:
 	if GameState.answers_today >= 5:
-		hint_label.text = "Все посетители на сегодня приняты."
+		hint_label.text = "All visitors received for today."
 		return
 
 	var visitor: Variant = VisitorManager.get_next_visitor()
 	if visitor == null:
-		hint_label.text = "Нет посетителей в очереди."
+		hint_label.text = "No visitors in the queue."
 		return
 
 	# Animate visitor entering, then show the dialog
+	AudioManager.play_sfx("footsteps")
 	await _animate_visitor_enter()
 	visitor_overlay.show_visitor(visitor)
 
@@ -158,6 +218,7 @@ func _animate_visitor_enter() -> void:
 
 func _animate_visitor_exit() -> void:
 	_is_animating = true
+	AudioManager.play_sfx("footsteps")
 
 	var tween: Tween = create_tween()
 	tween.set_parallel(true)
@@ -167,6 +228,32 @@ func _animate_visitor_exit() -> void:
 
 	visitor_sprite.visible = false
 	_is_animating = false
+
+
+# ---------------------------------------------------------------------------
+# Returning visitors
+# ---------------------------------------------------------------------------
+
+func _check_returning_visitors() -> void:
+	var returns: Array[Dictionary] = VisitorManager.get_returning_visitors(GameState.current_day)
+	if returns.size() > 0:
+		_show_return_dialogue(returns[0])
+
+
+func _show_return_dialogue(entry: Dictionary) -> void:
+	AudioManager.play_sfx("footsteps")
+	await _animate_visitor_enter()
+	visitor_overlay.show_return(entry)
+
+
+func _on_return_acknowledged(_visitor_id: String) -> void:
+	await _animate_visitor_exit()
+	_update_hud()
+	# Check if there are more returning visitors
+	var returns := VisitorManager.get_returning_visitors(GameState.current_day)
+	if returns.size() > 0:
+		await get_tree().create_timer(0.3).timeout
+		_show_return_dialogue(returns[0])
 
 
 # ---------------------------------------------------------------------------
@@ -192,7 +279,7 @@ func _on_answer_submitted(visitor_id: String, answer_id: String) -> void:
 	_update_status_bubble()
 
 	if GameState.answers_today >= 5:
-		hint_label.text = "Все посетители на сегодня приняты."
+		hint_label.text = "All visitors received for today."
 
 
 func _on_visitor_deferred(_visitor_id: String) -> void:
@@ -205,18 +292,23 @@ func _on_visitor_deferred(_visitor_id: String) -> void:
 # ---------------------------------------------------------------------------
 
 func _update_hud() -> void:
-	day_label.text = "День %d" % GameState.current_day
-	answers_label.text = "Ответов: %d/5" % GameState.answers_today
+	day_label.text = "Day %d" % GameState.current_day
+	answers_label.text = "Answers: %d/5" % GameState.answers_today
 
-	_update_progress_bar(trust_progress, GameState.city_stats.get("trust", 50))
-	_update_progress_bar(prosperity_progress, GameState.city_stats.get("prosperity", 50))
-	_update_progress_bar(safety_progress, GameState.city_stats.get("safety", 50))
-	_update_progress_bar(morale_progress, GameState.city_stats.get("morale", 50))
+	_update_progress_bar(trust_progress, GameState.city_stats.get("trust", 50), "Trust")
+	_update_progress_bar(prosperity_progress, GameState.city_stats.get("prosperity", 50), "Prosperity")
+	_update_progress_bar(safety_progress, GameState.city_stats.get("safety", 50), "Safety")
+	_update_progress_bar(morale_progress, GameState.city_stats.get("morale", 50), "Morale")
+
+	_update_desk_indicator()
 
 
-func _update_progress_bar(bar: ProgressBar, value: int) -> void:
-	bar.value = value
+func _update_progress_bar(bar: ProgressBar, value: int, stat_name: String) -> void:
+	# Animate value change
+	var tween := create_tween()
+	tween.tween_property(bar, "value", float(value), 0.5).set_trans(Tween.TRANS_QUAD)
 
+	# Update color based on value
 	var color: Color
 	if value > 60:
 		color = Color("#4CAF50")
@@ -233,14 +325,35 @@ func _update_progress_bar(bar: ProgressBar, value: int) -> void:
 	style.corner_radius_bottom_right = 2
 	bar.add_theme_stylebox_override("fill", style)
 
+	# Update tooltip
+	bar.tooltip_text = "%s: %d/100" % [stat_name, value]
+
 
 func _update_status_bubble() -> void:
 	var count: int = VisitorManager.get_remaining_count()
 	if count > 0:
 		status_bubble.visible = true
-		status_bubble_label.text = "Ожидает: %d" % count
+		status_bubble_label.text = "Waiting: %d" % count
 	else:
 		status_bubble.visible = false
+
+
+## Shows a blinking indicator on the desk when visitors are available
+func _update_desk_indicator() -> void:
+	var desk_highlight: ColorRect = desk_zone.get_node_or_null("Highlight")
+	if desk_highlight == null:
+		return
+
+	var has_visitors: bool = VisitorManager.get_remaining_count() > 0 and GameState.answers_today < 5
+	if has_visitors:
+		desk_highlight.visible = true
+		desk_highlight.color = Color(1.0, 0.85, 0.0, 0.2)
+		# Pulse animation
+		var tween := create_tween().set_loops()
+		tween.tween_property(desk_highlight, "color:a", 0.35, 0.8).set_trans(Tween.TRANS_SINE)
+		tween.tween_property(desk_highlight, "color:a", 0.1, 0.8).set_trans(Tween.TRANS_SINE)
+	else:
+		desk_highlight.visible = false
 
 
 # ---------------------------------------------------------------------------
@@ -249,9 +362,9 @@ func _update_status_bubble() -> void:
 
 func _on_visitor_manager_day_complete() -> void:
 	# Transition to day summary screen
-	get_tree().change_scene_to_file("res://scenes/main/day_summary.tscn")
+	SceneTransition.change_scene("res://scenes/main/day_summary.tscn")
 
 
 func _on_ending_triggered(ending_id: String) -> void:
 	GameState.set_meta("current_ending", ending_id)
-	get_tree().change_scene_to_file("res://scenes/main/ending_scene.tscn")
+	SceneTransition.change_scene("res://scenes/main/ending_scene.tscn")

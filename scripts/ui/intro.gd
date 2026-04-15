@@ -34,7 +34,8 @@ func _show_page(index: int) -> void:
 
 
 func _on_next_pressed() -> void:
+	AudioManager.play_sfx("click")
 	if _current_page >= INTRO_PAGES.size() - 1:
-		get_tree().change_scene_to_file("res://scenes/library/library.tscn")
+		SceneTransition.change_scene("res://scenes/library/library.tscn")
 	else:
 		_show_page(_current_page + 1)

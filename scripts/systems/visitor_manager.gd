@@ -66,6 +66,9 @@ func submit_answer(visitor_id: String, answer_id: String) -> void:
 		var trigger_day: int = GameState.current_day + trigger_delay
 		GameState.add_consequence(event_id, trigger_day)
 
+	# Schedule return if applicable
+	schedule_return(visitor, answer)
+
 	GameState.answers_today += 1
 	GameState.completed_visitors.append(visitor_id)
 
@@ -78,6 +81,44 @@ func defer_visitor(_visitor_id: String) -> void:
 	# Simply decrement the index so the visitor can be picked up again
 	if current_visitor_index > 0:
 		current_visitor_index -= 1
+
+
+# ---------------------------------------------------------------------------
+# Returning visitors
+# ---------------------------------------------------------------------------
+
+## Schedules a visitor to return on a future day if the answer has return fields.
+func schedule_return(visitor: Dictionary, answer: Dictionary) -> void:
+	var return_day_offset: int = int(answer.get("return_day", 0))
+	if return_day_offset <= 0 or not answer.has("return_text"):
+		return
+
+	var return_day: int = GameState.current_day + return_day_offset
+	var entry: Dictionary = {
+		"visitor_id": visitor.get("id", ""),
+		"visitor_name": visitor.get("name", "Unknown"),
+		"return_day": return_day,
+		"return_text": str(answer.get("return_text", "")),
+		"return_city_effect": answer.get("return_city_effect", {}),
+		"shown": false
+	}
+	GameState.pending_returns.append(entry)
+
+
+## Returns all visitors scheduled to return on the given day that have not been shown yet.
+func get_returning_visitors(day: int) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for entry in GameState.pending_returns:
+		if entry.get("return_day", 0) == day and not entry.get("shown", false):
+			result.append(entry)
+	return result
+
+
+## Marks a returning visitor entry as shown so it is not displayed again.
+func mark_return_shown(visitor_id: String) -> void:
+	for entry in GameState.pending_returns:
+		if entry.get("visitor_id", "") == visitor_id:
+			entry["shown"] = true
 
 
 # ---------------------------------------------------------------------------

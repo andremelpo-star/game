@@ -2,6 +2,7 @@ extends Control
 
 signal answer_submitted(visitor_id: String, answer_id: String)
 signal visitor_deferred(visitor_id: String)
+signal return_acknowledged(visitor_id: String)
 
 @onready var visitor_name: Label = %VisitorName
 @onready var importance_label: Label = %ImportanceLabel
@@ -185,6 +186,87 @@ func _on_apply_knowledge_pressed() -> void:
 		hint_label.add_theme_color_override("font_color", Color("#8B7355"))
 		hint_label.add_theme_font_size_override("font_size", 14)
 		answers_list.add_child(hint_label)
+
+
+## Shows a returning visitor (no answer choices, just text + close button)
+func show_return(entry: Dictionary) -> void:
+	_current_visitor = {}
+	_knowledge_revealed = false
+	_answer_buttons.clear()
+
+	visitor_name.text = entry.get("visitor_name", "Unknown")
+	importance_label.text = "Returning"
+	importance_label.add_theme_color_override("font_color", Color("#DAA520"))
+
+	question_text.text = ""
+	question_text.append_text(entry.get("return_text", ""))
+
+	# Clear existing answer buttons
+	for child in answers_list.get_children():
+		child.queue_free()
+
+	# Hide action buttons
+	btn_defer.visible = false
+	btn_apply_knowledge.visible = false
+
+	# Add close button
+	var btn_close := Button.new()
+	btn_close.text = "Understood"
+	btn_close.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn_close.custom_minimum_size.y = 44
+
+	var style_normal := StyleBoxFlat.new()
+	style_normal.bg_color = Color("#E8D5B5")
+	style_normal.border_color = Color("#DAA520")
+	style_normal.border_width_left = 2
+	style_normal.border_width_right = 2
+	style_normal.border_width_top = 2
+	style_normal.border_width_bottom = 2
+	style_normal.corner_radius_top_left = 4
+	style_normal.corner_radius_top_right = 4
+	style_normal.corner_radius_bottom_left = 4
+	style_normal.corner_radius_bottom_right = 4
+	style_normal.content_margin_left = 12.0
+	style_normal.content_margin_right = 12.0
+	style_normal.content_margin_top = 8.0
+	style_normal.content_margin_bottom = 8.0
+	btn_close.add_theme_stylebox_override("normal", style_normal)
+
+	var style_hover := StyleBoxFlat.new()
+	style_hover.bg_color = Color("#D4C4A0")
+	style_hover.border_color = Color("#B8860B")
+	style_hover.border_width_left = 2
+	style_hover.border_width_right = 2
+	style_hover.border_width_top = 2
+	style_hover.border_width_bottom = 2
+	style_hover.corner_radius_top_left = 4
+	style_hover.corner_radius_top_right = 4
+	style_hover.corner_radius_bottom_left = 4
+	style_hover.corner_radius_bottom_right = 4
+	style_hover.content_margin_left = 12.0
+	style_hover.content_margin_right = 12.0
+	style_hover.content_margin_top = 8.0
+	style_hover.content_margin_bottom = 8.0
+	btn_close.add_theme_stylebox_override("hover", style_hover)
+
+	btn_close.add_theme_color_override("font_color", Color("#2C1810"))
+	btn_close.add_theme_color_override("font_hover_color", Color("#2C1810"))
+	btn_close.pressed.connect(_on_return_closed.bind(entry))
+	answers_list.add_child(btn_close)
+
+	self.visible = true
+
+
+func _on_return_closed(entry: Dictionary) -> void:
+	AudioManager.play_sfx("click")
+	self.visible = false
+	# Apply return city effects
+	var effects: Dictionary = entry.get("return_city_effect", {})
+	for stat in effects:
+		GameState.modify_city_stat(stat, int(effects[stat]))
+	# Mark as shown
+	VisitorManager.mark_return_shown(entry.get("visitor_id", ""))
+	return_acknowledged.emit(entry.get("visitor_id", ""))
 
 
 func _translate_importance(importance: String) -> String:

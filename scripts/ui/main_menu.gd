@@ -19,13 +19,15 @@ func _ready() -> void:
 
 
 func _on_new_game_pressed() -> void:
+	AudioManager.play_sfx("click")
 	GameState.new_game()
-	get_tree().change_scene_to_file("res://scenes/main/intro.tscn")
+	SceneTransition.change_scene("res://scenes/main/intro.tscn")
 
 
 func _on_continue_pressed() -> void:
+	AudioManager.play_sfx("click")
 	GameState.load_game()
-	get_tree().change_scene_to_file("res://scenes/library/library.tscn")
+	SceneTransition.change_scene("res://scenes/library/library.tscn")
 
 
 func _on_settings_pressed() -> void:

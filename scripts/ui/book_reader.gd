@@ -224,11 +224,13 @@ func _show_page(index: int) -> void:
 
 func _go_prev_page() -> void:
 	if _current_page > 0:
+		AudioManager.play_sfx("page_turn")
 		_show_page(_current_page - 1)
 
 
 func _go_next_page() -> void:
 	if _current_page < _pages.size() - 1:
+		AudioManager.play_sfx("page_turn")
 		_show_page(_current_page + 1)
 
 
