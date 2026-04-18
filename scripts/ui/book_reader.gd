@@ -264,6 +264,9 @@ func _input(event: InputEvent) -> void:
 ## and marks the book as read in GameState.
 func _close_book() -> void:
 	if _reached_last_page and not _book_data.is_empty():
+		var book_id: String = _book_data.get("id", "")
+		var was_already_read: bool = GameState.is_book_read(book_id)
+
 		# Get knowledge keys and ensure typed array
 		var raw_keys: Variant = _book_data.get("knowledge_keys", [])
 		var typed_keys: Array[String] = []
@@ -271,7 +274,11 @@ func _close_book() -> void:
 			for k in raw_keys:
 				typed_keys.append(str(k))
 		GameState.add_knowledge(typed_keys)
-		GameState.mark_book_read(_book_data.get("id", ""))
+		GameState.mark_book_read(book_id)
+
+		# Count towards daily limit only for first-time reads
+		if not was_already_read:
+			GameState.books_read_today += 1
 
 	_book_data = {}
 	_pages.clear()

@@ -1,62 +1,118 @@
 consequences:
   - id: farmer_witch_peace
     trigger_delay: 2
-    type: city_walk
-    location: market
-    portrait: farmer_grig
-    scene_text: >
-      At the market square, Farmer Grig is selling fresh vegetables.
-      His face is beaming. Beside him stands a basket of unusual
-      herbs -- a gift from the witch on the hills.
-    npc_dialogue: >
-      Sage! The witch turned out to be kind. She showed me a spring
-      that I had blocked with my fence. The water returned and the
-      crops came back to life!
+    type: flag
+    set_flags:
+      - farmer_witch_peace_resolved
     city_state_change:
       prosperity: 2
       trust: 1
   - id: farmer_mob
     trigger_delay: 1
-    type: city_walk
-    location: gates
-    scene_text: >
-      Guards stand at the city gates. Word is that yesterday a group
-      of farmers went to the witch with pitchforks. She grew angry
-      and sent a fog upon the road. Three men got lost in the forest.
-    npc_dialogue: >
-      This is because of your advice, sage! People barely made it
-      back alive. The witch now refuses to see anyone.
+    type: flag
+    set_flags:
+      - farmer_mob
     city_state_change:
       safety: -3
       trust: -2
   - id: guard_mercy_apprentice
     trigger_delay: 2
-    type: city_walk
-    location: smithy
-    scene_text: >
-      Near the blacksmith's shop, a young boy works the bellows
-      with determination. The blacksmith pats him on the shoulder.
-      Passers-by nod approvingly.
-    npc_dialogue: >
-      That boy you helped, sage -- he is now the blacksmith's
-      apprentice. Works hard and has not stolen since. The market
-      folk started a fund for other orphans.
+    type: flag
+    set_flags:
+      - guard_mercy_apprentice
     city_state_change:
       trust: 2
       morale: 1
   - id: guard_harsh_law
     trigger_delay: 1
-    type: city_walk
-    location: tavern
-    scene_text: >
-      The mood in the market quarter is grim. People whisper
-      in corners. A group of women stands near the courthouse,
-      some weeping quietly.
-    npc_dialogue: >
-      Did you hear? They carried out the sentence on that boy.
-      He was only twelve! People are saying the sage's justice
-      is as cold as the grave. Several families are talking
-      about leaving the city.
+    type: flag
+    set_flags:
+      - guard_harsh_law
     city_state_change:
       trust: -3
+      morale: -2
+  - id: farmer_irrigation
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - farmer_irrigation_resolved
+    city_state_change:
+      prosperity: 1
+  - id: farmer_prays
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - farmer_prayed
+    city_state_change:
+      morale: 1
+  - id: farmer_sells
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - farmer_left_city
+    city_state_change:
+      prosperity: -1
+  - id: farmer_guilt
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - farmer_hired_mercenaries
+    city_state_change:
+      morale: -1
+  - id: farmer_baron
+    trigger_delay: 2
+    type: flag
+    set_flags:
+      - farmer_appealed_to_lord
+    city_state_change:
+      trust: 1
+  - id: farmer_waits
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - farmer_did_nothing
+    city_state_change:
+      prosperity: -1
+  - id: guard_work_debt
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_work_debt
+    city_state_change:
+      trust: 1
+  - id: guard_warning
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_warning_given
+    city_state_change:
+      safety: -1
+  - id: guard_prison
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_boy_imprisoned
+    city_state_change:
+      morale: -1
+  - id: guard_ignore
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_ignored_theft
+    city_state_change:
+      trust: -1
+  - id: guard_temple
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_temple_took_boy
+    city_state_change:
+      morale: 1
+  - id: guard_public_shame
+    trigger_delay: 1
+    type: flag
+    set_flags:
+      - guard_public_shame
+    city_state_change:
+      trust: -2
       morale: -2

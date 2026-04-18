@@ -5,12 +5,16 @@ signal day_complete
 var today_visitors: Array[Dictionary] = []
 var current_visitor_index: int = 0
 
+## Maximum visitors for the current day (loaded from YAML, default 3)
+var max_visitors_today: int = 3
+
 
 ## Loads visitors for the given day, merges injected visitors, applies swaps,
 ## removes flagged visitors, and filters by condition flags.
 func start_day(day: int) -> void:
 	today_visitors = ContentLoader.load_visitors_for_day(day)
 	current_visitor_index = 0
+	max_visitors_today = ContentLoader.get_max_visitors_for_day(day)
 
 	# Merge injected visitors for this day
 	var injected_ids: Array = GameState.get_injected_visitors(day)
@@ -136,7 +140,7 @@ func submit_answer(visitor_id: String, answer_id: String) -> void:
 	GameState.answers_today += 1
 	GameState.completed_visitors.append(visitor_id)
 
-	if GameState.answers_today >= 5:
+	if GameState.answers_today >= max_visitors_today:
 		day_complete.emit()
 
 
