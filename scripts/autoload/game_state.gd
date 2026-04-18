@@ -33,6 +33,12 @@ var pending_returns: Array[Dictionary] = []
 ## IDs of books already read
 var read_books: Array[String] = []
 
+## How many NEW books read today (resets each day; re-reads are free)
+var books_read_today: int = 0
+
+## Maximum new books the sage can read in a single day
+const MAX_BOOKS_PER_DAY: int = 3
+
 ## Story flags -- simple booleans set by YAML presets to gate content
 var story_flags: Array[String] = []
 
@@ -54,6 +60,11 @@ func add_knowledge(keys: Array[String]) -> void:
 	for key in keys:
 		if key not in knowledge_keys:
 			knowledge_keys.append(key)
+
+
+## Returns true if the sage can still read a new (unread) book today.
+func can_read_new_book() -> bool:
+	return books_read_today < MAX_BOOKS_PER_DAY
 
 
 ## Returns true if the key exists in knowledge_keys.
@@ -198,9 +209,10 @@ func mark_consequence_applied(event_id: String) -> void:
 			return
 
 
-## Resets answers_today to 0. Does NOT reset other data.
+## Resets daily counters to 0. Does NOT reset other data.
 func reset_for_new_day() -> void:
 	answers_today = 0
+	books_read_today = 0
 
 
 ## Serializes ALL state variables to JSON and writes to savegame.json.
@@ -208,6 +220,7 @@ func save_game() -> void:
 	var data: Dictionary = {
 		"current_day": current_day,
 		"answers_today": answers_today,
+		"books_read_today": books_read_today,
 		"knowledge_keys": knowledge_keys,
 		"city_stats": city_stats,
 		"completed_visitors": completed_visitors,
@@ -249,6 +262,7 @@ func load_game() -> bool:
 	var data: Dictionary = json.data
 	current_day = data.get("current_day", 1)
 	answers_today = data.get("answers_today", 0)
+	books_read_today = data.get("books_read_today", 0)
 
 	knowledge_keys.clear()
 	for key in data.get("knowledge_keys", []):
@@ -300,6 +314,7 @@ func has_save() -> bool:
 func new_game() -> void:
 	current_day = 1
 	answers_today = 0
+	books_read_today = 0
 	knowledge_keys.clear()
 	city_stats = {
 		"trust": 50,

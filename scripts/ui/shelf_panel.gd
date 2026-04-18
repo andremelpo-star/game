@@ -1,6 +1,7 @@
 extends PanelContainer
 
 signal book_selected(book_id: String)
+signal reading_exhausted
 
 @onready var shelf_title: Label = %ShelfTitle
 @onready var book_list: VBoxContainer = %BookList
@@ -97,6 +98,10 @@ func open_shelf(shelf: String) -> void:
 
 
 func _on_book_button_pressed(book_id: String) -> void:
+	# If book is unread and daily reading limit reached, block opening
+	if not GameState.is_book_read(book_id) and not GameState.can_read_new_book():
+		reading_exhausted.emit()
+		return
 	self.visible = false
 	book_selected.emit(book_id)
 

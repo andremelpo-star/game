@@ -1,0 +1,60 @@
+entries:
+  - id: walk_d1_intro
+    type: narration
+    text: >
+      Вечер. Мудрец выходит из библиотеки на узкие улочки города.
+      В воздухе пахнет свежим хлебом и дымом от кузнечных горнов.
+
+  - id: walk_d1_farmer_peace
+    type: narration
+    condition:
+      require_flags:
+        - farmer_witch_peace_resolved
+    text: >
+      На рыночной площади фермер Григ торгует свежими овощами.
+      Рядом с ним корзина необычных трав -- подарок от ведьмы с холмов.
+
+  - id: walk_d1_farmer_mob
+    type: dialogue
+    condition:
+      require_flags:
+        - farmer_mob
+    lines:
+      - speaker: Трактирщик
+        text: "Слышал про фермеров? С вилами на ведьму ходили..."
+      - speaker: Кузнец
+        text: "Да уж. Трое в лесу заблудились. Туман она наслала."
+      - speaker: Трактирщик
+        text: "И это по совету мудреца, говорят."
+
+  - id: walk_d1_guard_mercy
+    type: scene
+    condition:
+      require_flags:
+        - guard_mercy_apprentice
+    text: >
+      У кузницы мальчишка раздувает меха с упорством.
+      Кузнец хлопает его по плечу.
+    npc_name: Кузнец
+    npc_line: >
+      Тот мальчишка, которому ты помог -- теперь мой подмастерье.
+      Старается, не ворует больше.
+
+  - id: walk_d1_guard_harsh
+    type: narration
+    condition:
+      require_flags:
+        - guard_harsh_law
+    text: >
+      На рыночной площади тихо. Люди перешёптываются, избегая
+      взглядов стражников. Несколько женщин стоят у здания суда,
+      кто-то тихо плачет.
+
+  - id: walk_d1_peaceful
+    type: narration
+    condition:
+      forbid_flags:
+        - farmer_mob
+        - guard_harsh_law
+    text: >
+      Город спокоен этим вечером. Дети играют у фонтана.

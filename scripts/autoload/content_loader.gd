@@ -95,6 +95,54 @@ func load_visitors_for_day(day: int) -> Array[Dictionary]:
 	return []
 
 
+## Returns the max_visitors value for a given day from its YAML file.
+## Defaults to 3 if not specified or file not found.
+func get_max_visitors_for_day(day: int) -> int:
+	var day_str: String = "%02d" % day
+	var file_path: String = "res://content/visitors/day_%s.yaml" % day_str
+
+	if not FileAccess.file_exists(file_path):
+		return 3
+
+	var file := FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		return 3
+
+	var text: String = file.get_as_text()
+	file.close()
+
+	var parsed: Variant = _parse_yaml(text)
+	if parsed is Dictionary and parsed.has("max_visitors"):
+		return int(parsed["max_visitors"])
+	return 3
+
+
+## Loads evening walk entries for a given day from content/walks/day_XX.yaml.
+## Returns an array of entry dictionaries. Empty array if file not found.
+func load_walk_entries(day: int) -> Array[Dictionary]:
+	var day_str: String = "%02d" % day
+	var file_path: String = "res://content/walks/day_%s.yaml" % day_str
+
+	if not FileAccess.file_exists(file_path):
+		return []
+
+	var file := FileAccess.open(file_path, FileAccess.READ)
+	if not file:
+		return []
+
+	var text: String = file.get_as_text()
+	file.close()
+
+	var parsed: Variant = _parse_yaml(text)
+	if parsed is Dictionary and parsed.has("entries"):
+		var result: Array[Dictionary] = []
+		for e in parsed["entries"]:
+			if e is Dictionary:
+				result.append(e)
+		return result
+	return []
+
+
 ## Loads a single visitor by ID, searching day files and conditional.yaml.
 ## The day parameter is used to search the specific day file first.
 ## Returns empty Dictionary if not found.

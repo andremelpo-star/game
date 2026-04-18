@@ -1,3 +1,5 @@
+max_visitors: 3
+
 visitors:
   - id: visitor_fermer_day1
     name: Фермер Григ
