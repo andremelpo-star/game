@@ -23,16 +23,6 @@ func get_active_consequences(day: int) -> Array[Dictionary]:
 	return result
 
 
-## Returns only consequences of type "city_walk" for the current day.
-func get_city_walk_events() -> Array[Dictionary]:
-	var active: Array[Dictionary] = get_active_consequences(GameState.current_day)
-	var result: Array[Dictionary] = []
-	for event in active:
-		if event.get("type", "") == "city_walk":
-			result.append(event)
-	return result
-
-
 ## Returns consequences of type "visitor" for the current day.
 ## These inject a special visitor dialogue when the day starts.
 func get_visitor_events() -> Array[Dictionary]:
