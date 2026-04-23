@@ -1,23 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://main_menu_scene"]
+[gd_scene load_steps=3 format=3 uid="uid://main_menu_scene"]
 
 [ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/main/settings.tscn" id="2_settings"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
-bg_color = Color(0.302, 0.216, 0.153, 0.85)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.624, 0.518, 0.365, 0.6)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-content_margin_left = 16.0
-content_margin_top = 8.0
-content_margin_right = 16.0
-content_margin_bottom = 8.0
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -28,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_script")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="TextureRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,98 +20,53 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.141, 0.094, 0.063, 1)
+texture = null
+expand_mode = 1
+stretch_mode = 6
 
-[node name="VignetteOverlay" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-color = Color(0, 0, 0, 0.15)
-
-[node name="CenterContainer" type="CenterContainer" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="TitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.831, 0.686, 0.216, 1)
-theme_override_font_sizes/font_size = 52
-text = "Мудрец города N"
-horizontal_alignment = 1
-
-[node name="SubtitleLabel" type="Label" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.624, 0.518, 0.365, 1)
-theme_override_font_sizes/font_size = 20
-text = "Интерактивная история"
-horizontal_alignment = 1
-
-[node name="Spacer" type="Control" parent="CenterContainer/VBoxContainer"]
-layout_mode = 2
-custom_minimum_size = Vector2(0, 40)
-
-[node name="BtnNewGame" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="BtnNewGame" type="Button" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(300, 50)
-theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "Новая игра"
+layout_mode = 0
+offset_left = 670.0
+offset_top = 68.0
+offset_right = 1770.0
+offset_bottom = 280.0
+mouse_default_cursor_shape = 2
+flat = true
+tooltip_text = "Новая игра"
 
-[node name="BtnContinue" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="BtnContinue" type="Button" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(300, 50)
-theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "Продолжить"
+layout_mode = 0
+offset_left = 670.0
+offset_top = 290.0
+offset_right = 1770.0
+offset_bottom = 502.0
+mouse_default_cursor_shape = 2
+flat = true
+tooltip_text = "Продолжить"
 
-[node name="BtnSettings" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="BtnSettings" type="Button" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(300, 50)
-theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "Настройки"
+layout_mode = 0
+offset_left = 670.0
+offset_top = 512.0
+offset_right = 1770.0
+offset_bottom = 724.0
+mouse_default_cursor_shape = 2
+flat = true
+tooltip_text = "Настройки"
 
-[node name="BtnQuit" type="Button" parent="CenterContainer/VBoxContainer"]
+[node name="BtnQuit" type="Button" parent="."]
 unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(300, 50)
-theme_override_colors/font_color = Color(1, 0.973, 0.906, 1)
-theme_override_font_sizes/font_size = 22
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
-text = "Выход"
-
-[node name="VersionLabel" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -80.0
-offset_top = -30.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_colors/font_color = Color(0.624, 0.518, 0.365, 0.5)
-theme_override_font_sizes/font_size = 14
-text = "v0.1"
+layout_mode = 0
+offset_left = 670.0
+offset_top = 734.0
+offset_right = 1770.0
+offset_bottom = 946.0
+mouse_default_cursor_shape = 2
+flat = true
+tooltip_text = "Выход"
 
 [node name="SettingsOverlay" parent="." instance=ExtResource("2_settings")]
 unique_name_in_owner = true
