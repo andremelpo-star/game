@@ -1,5 +1,8 @@
 extends Control
 
+# Design viewport size matching project.godot settings.
+const DESIGN_SIZE := Vector2(1920.0, 1080.0)
+
 @onready var background: TextureRect = $Background
 @onready var btn_new_game: Button = %BtnNewGame
 @onready var btn_continue: Button = %BtnContinue
@@ -8,6 +11,11 @@ extends Control
 @onready var settings_overlay: PanelContainer = %SettingsOverlay
 
 var _menu_texture: Texture2D
+
+# Button rects in design-space coordinates (1920x1080), kept in sync with
+# main_menu.tscn so that the editor layout is the single source of truth.
+# Format: [left, top, right, bottom] matching offset_left/top/right/bottom.
+var _button_rects: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -24,6 +32,14 @@ func _ready() -> void:
 
 	settings_overlay.visible = false
 
+	# Store the design-space rects that match main_menu.tscn offsets.
+	_button_rects = [
+		{"node": btn_new_game, "left": 828.0, "top": 282.0, "right": 1635.0, "bottom": 451.0},
+		{"node": btn_continue, "left": 822.0, "top": 440.0, "right": 1623.0, "bottom": 606.0},
+		{"node": btn_settings, "left": 808.0, "top": 602.0, "right": 1622.0, "bottom": 754.0},
+		{"node": btn_quit, "left": 792.0, "top": 758.0, "right": 1650.0, "bottom": 921.0},
+	]
+
 	# Reposition buttons on resize to match the background image
 	get_viewport().size_changed.connect(_reposition_buttons)
 	_reposition_buttons()
@@ -34,35 +50,43 @@ func _reposition_buttons() -> void:
 		return
 
 	var vp_size := get_viewport_rect().size
-	var img_size := _menu_texture.get_size()  # 1672 x 941
+	var img_size := _menu_texture.get_size()  # e.g. 1672 x 941
 
-	# Calculate how the image is displayed with keep_aspect_covered (stretch_mode 6)
-	var scale_x := vp_size.x / img_size.x
-	var scale_y := vp_size.y / img_size.y
-	var scale := maxf(scale_x, scale_y)
+	# How the image fills the design viewport with keep_aspect_covered
+	var design_scale_x := DESIGN_SIZE.x / img_size.x
+	var design_scale_y := DESIGN_SIZE.y / img_size.y
+	var design_scale := maxf(design_scale_x, design_scale_y)
+	var design_offset_x := (DESIGN_SIZE.x - img_size.x * design_scale) / 2.0
+	var design_offset_y := (DESIGN_SIZE.y - img_size.y * design_scale) / 2.0
 
-	var displayed_w := img_size.x * scale
-	var displayed_h := img_size.y * scale
-	var offset_x := (vp_size.x - displayed_w) / 2.0
-	var offset_y := (vp_size.y - displayed_h) / 2.0
+	# How the image fills the actual viewport with keep_aspect_covered
+	var vp_scale_x := vp_size.x / img_size.x
+	var vp_scale_y := vp_size.y / img_size.y
+	var vp_scale := maxf(vp_scale_x, vp_scale_y)
+	var vp_offset_x := (vp_size.x - img_size.x * vp_scale) / 2.0
+	var vp_offset_y := (vp_size.y - img_size.y * vp_scale) / 2.0
 
-	# Button areas in original image coordinates (1672x941)
-	# These define the clickable regions over each book spine
-	var buttons_data: Array[Dictionary] = [
-		{"node": btn_new_game, "x": 530, "y": 95, "w": 940, "h": 200},
-		{"node": btn_continue, "x": 530, "y": 305, "w": 940, "h": 200},
-		{"node": btn_settings, "x": 530, "y": 515, "w": 940, "h": 195},
-		{"node": btn_quit, "x": 530, "y": 715, "w": 940, "h": 170},
-	]
-
-	for data in buttons_data:
+	for data in _button_rects:
 		var btn: Button = data["node"]
-		var bx: float = data["x"] * scale + offset_x
-		var by: float = data["y"] * scale + offset_y
-		var bw: float = data["w"] * scale
-		var bh: float = data["h"] * scale
-		btn.position = Vector2(bx, by)
-		btn.size = Vector2(bw, bh)
+		var left: float = data["left"]
+		var top: float = data["top"]
+		var right: float = data["right"]
+		var bottom: float = data["bottom"]
+
+		# Convert design-space coords to image-space coords
+		var img_left := (left - design_offset_x) / design_scale
+		var img_top := (top - design_offset_y) / design_scale
+		var img_right := (right - design_offset_x) / design_scale
+		var img_bottom := (bottom - design_offset_y) / design_scale
+
+		# Convert image-space coords to current viewport coords
+		var screen_left := img_left * vp_scale + vp_offset_x
+		var screen_top := img_top * vp_scale + vp_offset_y
+		var screen_right := img_right * vp_scale + vp_offset_x
+		var screen_bottom := img_bottom * vp_scale + vp_offset_y
+
+		btn.position = Vector2(screen_left, screen_top)
+		btn.size = Vector2(screen_right - screen_left, screen_bottom - screen_top)
 
 
 func _on_new_game_pressed() -> void:
