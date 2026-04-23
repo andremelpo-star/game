@@ -11,9 +11,12 @@ var _menu_texture: Texture2D
 
 
 func _ready() -> void:
-	_menu_texture = load("res://assets/ui/menu.png")
-	if _menu_texture:
-		background.texture = _menu_texture
+	# Texture is set in the scene file; fall back to runtime load if needed
+	_menu_texture = background.texture
+	if not _menu_texture:
+		_menu_texture = load("res://assets/ui/menu.png")
+		if _menu_texture:
+			background.texture = _menu_texture
 
 	btn_continue.visible = GameState.has_save()
 
