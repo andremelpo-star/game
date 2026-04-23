@@ -49,10 +49,10 @@ func _reposition_buttons() -> void:
 	# Button areas in original image coordinates (1672x941)
 	# These define the clickable regions over each book spine
 	var buttons_data: Array[Dictionary] = [
-		{"node": btn_new_game, "x": 560, "y": 58, "w": 960, "h": 185},
-		{"node": btn_continue, "x": 560, "y": 252, "w": 960, "h": 185},
-		{"node": btn_settings, "x": 560, "y": 446, "w": 960, "h": 185},
-		{"node": btn_quit, "x": 560, "y": 642, "w": 960, "h": 185},
+		{"node": btn_new_game, "x": 530, "y": 95, "w": 940, "h": 200},
+		{"node": btn_continue, "x": 530, "y": 305, "w": 940, "h": 200},
+		{"node": btn_settings, "x": 530, "y": 515, "w": 940, "h": 195},
+		{"node": btn_quit, "x": 530, "y": 715, "w": 940, "h": 170},
 	]
 
 	for data in buttons_data:
@@ -68,7 +68,6 @@ func _reposition_buttons() -> void:
 func _on_new_game_pressed() -> void:
 	AudioManager.play_sfx("click")
 	GameState.new_game()
-	# Skip intro text, go directly to the first playable scene
 	SceneTransition.change_scene("res://scenes/library/library.tscn")
 
 
